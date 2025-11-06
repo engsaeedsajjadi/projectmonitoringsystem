@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریت انبار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div class="flex h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="w-64 flex-shrink-0 bg-white border-l shadow-sm hidden lg:block">
+        <div class="flex flex-col h-full">
+            <div class="h-16 flex items-center justify-center border-b">
+                <i class="fas fa-cogs text-blue-600 text-2xl"></i>
+                <span class="ml-3 font-bold text-xl text-gray-800">سیستم مانیتورینگ</span>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="/" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg"><i class="fas fa-tachometer-alt fa-fw ml-3"></i>داشبورد اصلی</a>
+                <a href="/manager" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg"><i class="fas fa-user-shield fa-fw ml-3"></i>پنل مدیر</a>
+                <a href="/workshop" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg"><i class="fas fa-hard-hat fa-fw ml-3"></i>پنل کارگاه</a>
+                <a href="/reports" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg"><i class="fas fa-chart-line fa-fw ml-3"></i>گزارش‌های KPI</a>
+                <a href="/inventory" class="flex items-center px-4 py-2.5 text-gray-700 bg-blue-50 rounded-lg font-semibold"><i class="fas fa-warehouse fa-fw ml-3 text-blue-600"></i>مدیریت انبار</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white border-b flex items-center justify-between px-6">
+            <h1 class="text-xl font-semibold text-gray-800">داشبورد مدیریت انبار</h1>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <!-- Action Buttons and Search -->
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <input type="text" id="searchInput" placeholder="جستجو در نام کالا..." class="w-full p-2 border rounded-md">
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="addItemBtn" class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"><i class="fas fa-plus"></i> کالای جدید</button>
+                        <button id="manageLocationsBtn" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"><i class="fas fa-map-marker-alt"></i> مکان‌ها</button>
+                        <button id="manageBOMsBtn" class="w-full bg-purple-500 text-white p-2 rounded-md hover:bg-purple-600"><i class="fas fa-clipboard-list"></i> BOM</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="bg-white rounded-lg shadow-sm overflow-x-auto">
+                <table class="w-full text-sm text-right">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-3">نام کالا</th>
+                            <th class="p-3 text-center">موجودی</th>
+                            <th class="p-3 text-center">واحد</th>
+                            <th class="p-3">مکان</th>
+                            <th class="p-3 text-center">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- Rows will be inserted here by JS -->
+                    </tbody>
+                </table>
+                 <div id="loader" class="text-center p-8"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modals will go here (Add/Edit Item, Manage Locations, Manage BOMs) -->
+<!-- You can create these modals similar to how you would in Bootstrap or with custom JS/CSS -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.getElementById('inventoryTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const loader = document.getElementById('loader');
+    let inventoryCache = [];
+    let locationsCache = [];
+
+    async function fetchData() {
+        loader.style.display = 'block';
+        tableBody.innerHTML = '';
+        try {
+            const [itemsRes, locationsRes] = await Promise.all([
+                fetch('/inventory/items'),
+                fetch('/inventory/locations')
+            ]);
+            inventoryCache = await itemsRes.json();
+            locationsCache = await locationsRes.json();
+            renderTable(inventoryCache);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">خطا در بارگذاری داده‌ها</td></tr>';
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    function renderTable(items) {
+        tableBody.innerHTML = '';
+        if (items.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">هیچ کالایی یافت نشد.</td></tr>';
+            return;
+        }
+        items.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b hover:bg-gray-50';
+            const alertClass = item.quantity < item.min_stock_level ? 'text-red-500 font-bold' : '';
+            
+            row.innerHTML = `
+                <td class="p-3 font-semibold">${item.name}</td>
+                <td class="p-3 text-center ${alertClass}">${item.quantity}</td>
+                <td class="p-3 text-center text-gray-600">${item.unit}</td>
+                <td class="p-3 text-gray-600">${item.location ? item.location.name : 'نامشخص'}</td>
+                <td class="p-3 text-center">
+                    <button class="text-blue-500 hover:text-blue-700 mx-1" title="ویرایش"><i class="fas fa-edit"></i></button>
+                    <button class="text-yellow-500 hover:text-yellow-700 mx-1" title="تغییر موجودی"><i class="fas fa-exchange-alt"></i></button>
+                    <button class="text-indigo-500 hover:text-indigo-700 mx-1" title="چاپ برچسب"><i class="fas fa-barcode"></i></button>
+                    <button class="text-red-500 hover:text-red-700 mx-1" title="حذف"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    searchInput.addEventListener('input', () => {
+        const term = searchInput.value.toLowerCase();
+        const filtered = inventoryCache.filter(item => item.name.toLowerCase().includes(term));
+        renderTable(filtered);
+    });
+
+    fetchData();
+    // TODO: Add event listeners for buttons to open modals
+});
+</script>
+
+</body>
+</html>

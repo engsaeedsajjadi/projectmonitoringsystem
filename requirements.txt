@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+jinja2
+python-multipart
+openpyxl
+passlib[bcrypt]
+python-jose[cryptography]
+
+qrcode
+jdatetime
+numpy

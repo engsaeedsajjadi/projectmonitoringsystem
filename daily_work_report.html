@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ثبت گزارش کار روزانه</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: "Vazirmatn", sans-serif; }
+        .shamsi-datepicker-display { background-color: #fff; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.5rem 0.75rem; width: 100%; cursor: pointer; }
+        html.dark .shamsi-datepicker-display { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        .table-input { width: 80px; text-align: center; border-radius: 5px; border: 1px solid #ccc; padding: 4px; }
+        html.dark .table-input { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+<div class="flex h-screen">
+	<!-- ✅ سایدبار یکپارچه و داینامیک -->
+	<aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+		<div class="flex flex-col h-full">
+			<div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+				<i class="fas fa-cogs text-blue-600 text-2xl"></i>
+				<span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+			</div>
+			<!-- این بخش توسط جاوااسکریپت به صورت داینامیک پر می‌شود -->
+			<nav id="sidebar-nav" class="flex-1 px-4 py-6 space-y-2 text-sm"></nav>
+		</div>
+	</aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+             <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3"><i class="fas fa-clipboard-check text-indigo-600"></i><span>ثبت گزارش کار روزانه</span></h1>
+             <div class="flex items-center gap-4">
+                 <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"><i class="fas fa-moon" id="theme-toggle-dark-icon"></i><i class="fas fa-sun hidden" id="theme-toggle-light-icon"></i></button>
+                 <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                 <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2"><span id="userName" class="font-semibold text-sm"></span><i class="fas fa-chevron-down text-xs"></i></button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20"><a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fas fa-sign-out-alt ml-2"></i>خروج</a></div>
+                 </div>
+             </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div><label class="block text-sm font-medium mb-1">نام پرسنل</label><p id="employeeName" class="w-full rounded-lg bg-gray-100 dark:bg-gray-700 shamsi-datepicker-display"></p></div>
+                    <div><label for="reportDate" class="block text-sm font-medium mb-1">تاریخ گزارش</label><input type="text" id="reportDate" class="w-full rounded-lg shamsi-datepicker-display" readonly></div>
+                </div>
+                <hr class="dark:border-gray-700"/>
+                <div id="reportFormContainer" class="mt-6 hidden"><h3 class="text-lg font-semibold mb-4">فرم گزارش کار</h3><div class="overflow-x-auto"><div id="reportTable"></div></div><div class="flex justify-end mt-6"><button id="submitReportBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg flex items-center gap-2"><i class="fas fa-paper-plane"></i> ارسال گزارش</button></div></div>
+                <div id="reportLoader" class="text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-2 text-gray-500">در حال بارگذاری فرم...</p></div>
+            </div>
+        </div>
+    </main>
+</div>
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-[1100]"></div>
+<script src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script>
+// ✅✅✅ JAVASCRIPT کد یکپارچه و نهایی ✅✅✅
+document.addEventListener('DOMContentLoaded', () => {
+    // ==========================================================
+    // بخش ۱: توابع مشترک و ابزارهای کمکی
+    // ==========================================================
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401 || response.status === 403) { auth.logout(); throw new Error('Unauthorized'); }
+            if (response.status === 204) return;
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`);
+            return data;
+        },
+        get: (url) => api._fetch(url),
+        post: (url, body) => api._fetch(url, { method: 'POST', body: JSON.stringify(body) }),
+        put: (url, body) => api._fetch(url, { method: 'PUT', body: JSON.stringify(body) }),
+        delete: (url) => api._fetch(url, { method: 'DELETE' })
+    };
+
+    const auth = {
+        check: () => { if (!localStorage.getItem('token')) window.location.replace('/login.html'); },
+        fetchUser: async () => { try { const user = await api.get('/auth/me'); DOM.userName.textContent = user.name; return user; } catch (error) { console.error('Failed to fetch user info:', error.message); return null; } },
+        logout: () => { localStorage.removeItem('token'); window.location.replace('/login.html'); }
+    };
+
+    const ui = {
+        showToast: (message, type = 'info') => {
+            const toastId = 'toast-' + Date.now();
+            const colors = { info: 'bg-blue-500', success: 'bg-green-500', error: 'bg-red-500' };
+            const icon = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-triangle' };
+            const toastHtml = `<div id="${toastId}" class="max-w-xs ${colors[type]} text-white text-sm rounded-lg shadow-lg p-3 flex items-center transition-all duration-300 transform translate-x-full" role="alert"><i class="fas ${icon[type]} ml-2"></i><span>${message}</span></div>`;
+            document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+            setTimeout(() => document.getElementById(toastId)?.classList.remove('translate-x-full'), 100);
+            setTimeout(() => { const t = document.getElementById(toastId); if (t) { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); } }, 4500);
+        },
+        setupTheme: () => {
+            const themeToggle = document.getElementById('theme-toggle'), darkIcon = document.getElementById('theme-toggle-dark-icon'), lightIcon = document.getElementById('theme-toggle-light-icon');
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); lightIcon.classList.remove('hidden'); darkIcon.classList.add('hidden'); } else { darkIcon.classList.remove('hidden'); lightIcon.classList.add('hidden'); }
+            themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; });
+        },
+        setupSidebar: (userRole) => {
+            const navContainer = document.getElementById('sidebar-nav');
+            if (!navContainer) return;
+            const currentPage = window.location.pathname;
+            const links = [
+                { href: "/assembler-dashboard.html", icon: "fa-users-cog", text: "آمار و گزارش کار", role: ["employee", "supervisor"] },
+                { href: "/employee-dashboard.html", icon: "fa-user", text: "گزارش‌های من", role: ["employee", "supervisor"] },
+                { separator: true, role: ["supervisor"] },
+                { title: "پنل مدیریت", role: ["supervisor"] },
+                { href: "/dashboard.html", icon: "fa-tachometer-alt", text: "داشبورد اصلی", role: ["supervisor"] },
+                { href: "/manager.html", icon: "fa-user-shield", text: "پنل مدیر", role: ["supervisor"] },
+                { href: "/workshop.html", icon: "fa-hard-hat", text: "پنل کارگاه", role: ["supervisor"] },
+                { href: "/reports.html", icon: "fa-chart-line", text: "گزارش‌های KPI", role: ["supervisor"] },
+                { href: "/warehouse_dashboard.html", icon: "fa-warehouse", text: "داشبورد انبار", role: ["supervisor"] },
+                { separator: true, border: true, role: ["supervisor"] },
+                { href: "/personnel-management.html", icon: "fa-users", text: "مدیریت پرسنل", role: ["supervisor"] },
+                { href: "/supervisor-dashboard.html", icon: "fa-user-check", text: "داشبورد ناظر", role: ["supervisor"] },
+            ];
+            
+            navContainer.innerHTML = links.filter(link => link.role.includes(userRole)).map(link => {
+                if (link.separator) return `<hr class="${link.border ? 'pt-4 mt-4 border-t' : 'my-3'} border-gray-200 dark:border-gray-700">`;
+                if (link.title) return `<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">${link.text}</h6>`;
+                const isActive = currentPage.endsWith(link.href);
+                const activeClasses = 'text-gray-700 dark:text-white bg-blue-50 dark:bg-blue-900/50 font-semibold';
+                const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700';
+                const iconClass = isActive ? 'text-blue-600' : '';
+                return `<a href="${link.href}" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg ${isActive ? activeClasses : inactiveClasses}"><i class="fas ${link.icon} fa-fw ml-3 ${iconClass}"></i><span>${link.text}</span></a>`;
+            }).join('');
+        }
+    };
+
+    // ==========================================================
+    // بخش ۲: منطق اختصاصی این صفحه
+    // ==========================================================
+    let currentUser = null;
+    let reportConfig = null;
+    let datepicker = null;
+
+    // --- DOM Elements ---
+    const DOM = {};
+    ["employeeName", "reportDate", "reportFormContainer", "reportLoader", "reportTable", "submitReportBtn", "userName", "user-menu-button", "user-menu", "logoutButton"].forEach(id => DOM[id] = document.getElementById(id));
+    
+    // --- Logic ---
+    function buildReportTable(config) {
+        let tableHtml = `<div class="space-y-6">`;
+        config.rows.forEach((row, rowIndex) => {
+            let contentHtml = '';
+            if (row.type === 'checkbox') {
+                const key = `R${rowIndex}_I0`;
+                contentHtml = `<div class="flex items-center"><input type="checkbox" data-key="${key}" class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"></div>`;
+            } else if (row.type === 'checkbox_group_with_values') {
+                contentHtml = `<div class="flex flex-wrap gap-x-6 gap-y-2">`;
+                row.items.forEach((item, itemIndex) => { const key = `R${rowIndex}_I${itemIndex}`; contentHtml += `<label class="flex items-center gap-2"><input type="checkbox" data-key="${key}" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><span>${item.label} (${item.value}%)</span></label>`; });
+                contentHtml += `</div>`;
+            } else if (row.items) {
+                contentHtml = `<div class="flex flex-wrap items-center justify-start gap-x-6 gap-y-3">`;
+                row.items.forEach((item, itemIndex) => { if (item) { const key = `R${rowIndex}_I${itemIndex}`; contentHtml += `<div class="text-center"><label class="block text-xs mb-1">${item.label}</label><input type="number" class="table-input" data-key="${key}"></div>`; } });
+                contentHtml += `</div>`;
+            }
+            tableHtml += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-b dark:border-gray-700 pb-4"><div class="font-semibold col-span-1">${row.title}</div><div class="col-span-2">${contentHtml}</div></div>`;
+        });
+        return tableHtml + '</div>';
+    }
+
+	async function submitReport() {
+		if (!datepicker || !datepicker.getState().selected) return ui.showToast('لطفا تاریخ گزارش را انتخاب کنید.', 'error');
+		const selectedDate = new persianDate(datepicker.getState().selected.unixDate);
+		const gregorianDate = selectedDate.toDate();
+		const reportDate = `${gregorianDate.getFullYear()}-${('0' + (gregorianDate.getMonth() + 1)).slice(-2)}-${('0' + gregorianDate.getDate()).slice(-2)}`;
+		const reportData = {};
+		document.querySelectorAll('#reportTable input').forEach(input => {
+			const key = input.dataset.key;
+			if (!key) return;
+			if (input.type === 'number') { const value = input.value.trim(); if (value !== '') { const pVal = parseInt(value, 10); if (!isNaN(pVal) && pVal > 0) reportData[key] = pVal; } } 
+            else if (input.type === 'checkbox' && input.checked) { reportData[key] = 1; }
+		});
+		if (Object.keys(reportData).length === 0) return ui.showToast('فرم گزارش خالی است. لطفا حداقل یک مورد را پر کنید.', 'error');
+		DOM.submitReportBtn.disabled = true; DOM.submitReportBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+		try {
+			await api.post(`/daily-reports/`, { personnel_id: currentUser.id, report_date: reportDate, report_data: reportData });
+			ui.showToast('گزارش با موفقیت ثبت شد.', 'success');
+			document.querySelectorAll('#reportTable input').forEach(input => { if (input.type === 'number') input.value = ''; else if (input.type === 'checkbox') input.checked = false; });
+		} catch (error) { ui.showToast(`خطا در ثبت گزارش: ${error.message}`, 'error'); } 
+        finally { DOM.submitReportBtn.disabled = false; DOM.submitReportBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ارسال گزارش`; }
+	}
+
+    // ==========================================================
+    // بخش ۳: تابع اصلی اجرای صفحه
+    // ==========================================================
+    async function initialize() {
+        auth.check();
+        currentUser = await auth.fetchUser();
+        if (!currentUser) return; // متوقف کردن اجرا در صورت عدم دریافت اطلاعات کاربر
+
+        ui.setupTheme();
+        ui.setupSidebar(currentUser.role);
+
+        DOM.userMenuButton.addEventListener('click', () => DOM.userMenu.classList.toggle('hidden'));
+        DOM.logoutButton.addEventListener('click', auth.logout);
+        
+        DOM.employeeName.textContent = currentUser.name;
+        datepicker = $("#reportDate").persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: true });
+        
+        DOM.submitReportBtn.addEventListener('click', submitReport);
+        
+        try {
+            DOM.reportLoader.style.display = 'block';
+            reportConfig = await api.get('/daily-reports/config');
+            DOM.reportTable.innerHTML = buildReportTable(reportConfig);
+            DOM.reportFormContainer.style.display = 'block';
+        } catch (error) {
+            ui.showToast('خطا در بارگذاری فرم گزارش.', 'error');
+        } finally {
+            DOM.reportLoader.style.display = 'none';
+        }
+    }
+
+    initialize();
+});
+</script>
+</body>
+</html>

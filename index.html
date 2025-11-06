@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>در حال هدایت...</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+
+    <script>
+        async function redirectUser() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                // اگر توکن وجود ندارد، به صفحه لاگین برو
+                window.location.replace('/login');
+                return;
+            }
+
+            try {
+                // با توکن موجود، اطلاعات کاربر را بگیر
+                const response = await fetch('/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    // اگر توکن نامعتبر یا منقضی شده بود
+                    throw new Error('Invalid token');
+                }
+
+                const user = await response.json();
+
+                // بر اساس نقش، به داشبورد مناسب هدایت کن
+                if (user.role === 'supervisor') {
+                    window.location.replace('/dashboard');
+                } else {
+                    window.location.replace('/assembler-dashboard');
+                }
+            } catch (error) {
+                // در صورت بروز هرگونه خطا (توکن نامعتبر، مشکل شبکه و...)، توکن را پاک کرده و به لاگین برو
+                console.error("Redirect failed:", error.message);
+                localStorage.removeItem('token');
+                window.location.replace('/login');
+            }
+        }
+
+        redirectUser();
+    </script>
+</body>
+</html>

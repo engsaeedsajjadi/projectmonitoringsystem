@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریت انبار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .nav-link-item { transition: all 0.2s ease-in-out; }
+        .tab-btn.active { --tw-text-opacity: 1; color: rgb(37 99 235 / var(--tw-text-opacity)); border-bottom-color: rgb(37 99 235 / var(--tw-text-opacity)); font-weight: 600; }
+        html.dark .tab-btn.active { --tw-text-opacity: 1; color: rgb(96 165 250 / var(--tw-text-opacity)); border-bottom-color: rgb(96 165 250 / var(--tw-text-opacity)); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal { transition: opacity 0.25s ease; }
+        .modal.hidden { opacity: 0; pointer-events: none; }
+        .modal:not(.hidden) { opacity: 1; }
+        .modal > div { transition: transform 0.25s ease; }
+        .modal.hidden > div { transform: scale(0.95); }
+        .status-badge.status-normal { background-color: #dcfce7; color: #166534; }
+        .status-badge.status-low { background-color: #fffbeb; color: #b45309; }
+        .status-badge.status-critical { background-color: #fee2e2; color: #991b1b; }
+        html.dark .status-badge.status-normal { background-color: #14532d; color: #bbf7d0; }
+        html.dark .status-badge.status-low { background-color: #78350f; color: #fef3c7; }
+        html.dark .status-badge.status-critical { background-color: #7f1d1d; color: #fecaca; }
+        .transaction-badge.in { background-color: #dcfce7; color: #166534; }
+        .transaction-badge.out { background-color: #fee2e2; color: #991b1b; }
+        html.dark .transaction-badge.in { background-color: #14532d; color: #bbf7d0; }
+        html.dark .transaction-badge.out { background-color: #7f1d1d; color: #fecaca; }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+        <div class="flex flex-col h-full">
+            <div class="h-16 flex items-center justify-center border-b dark:border-gray-700 px-4">
+                <i class="fas fa-cogs text-blue-600 text-2xl"></i>
+                <span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+            </div>
+            <nav id="sidebar-nav" class="flex-1 px-4 py-6 space-y-2 text-sm"></nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+            <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3">
+                <i class="fas fa-warehouse text-blue-600"></i><span>داشبورد مدیریت انبار</span>
+            </h1>
+            <div class="flex items-center gap-4">
+                <button id="refreshBtn" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400" title="بروزرسانی داده‌ها">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button id="themeToggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                    <i class="fas fa-moon" id="themeToggleDarkIcon"></i>
+                    <i class="fas fa-sun hidden" id="themeToggleLightIcon"></i>
+                </button>
+                <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2">
+                        <span id="userName" class="font-semibold text-sm"></span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20">
+                        <a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                <nav id="main-tabs" class="flex space-x-reverse space-x-4 -mb-px">
+                    <button class="tab-btn py-3 px-1 border-b-2 whitespace-nowrap active" data-tab="dashboard">📊 داشبورد</button>
+                    <button class="tab-btn py-3 px-1 border-b-2 whitespace-nowrap" data-tab="inventory">📦 مدیریت موجودی</button>
+                    <button class="tab-btn py-3 px-1 border-b-2 whitespace-nowrap" data-tab="transactions">🔄 تراکنش‌ها</button>
+                    <button class="tab-btn py-3 px-1 border-b-2 whitespace-nowrap" data-tab="panel-config">⚙️ تنظیمات تابلوها</button>
+                    <button class="tab-btn py-3 px-1 border-b-2 whitespace-nowrap" data-tab="reports">📈 گزارش‌ها</button>
+                </nav>
+            </div>
+            
+            <div class="tab-content">
+                <div id="tab-dashboard" class="tab-pane active">
+                    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow flex items-center gap-4"><div class="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 p-3 rounded-full"><i class="fas fa-boxes fa-lg"></i></div><div><h3 class="text-sm text-gray-500 dark:text-gray-400">کل کالاها</h3><span id="totalItems" class="text-2xl font-bold">0</span></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow flex items-center gap-4"><div class="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-full"><i class="fas fa-exclamation-triangle fa-lg"></i></div><div><h3 class="text-sm text-gray-500 dark:text-gray-400">موجودی‌های کم</h3><span id="lowStockItems" class="text-2xl font-bold">0</span></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow flex items-center gap-4"><div class="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-300 p-3 rounded-full"><i class="fas fa-chart-line fa-lg"></i></div><div><h3 class="text-sm text-gray-500 dark:text-gray-400">تراکنش‌های امروز</h3><span id="todayTransactions" class="text-2xl font-bold">0</span></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow flex items-center gap-4"><div class="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 p-3 rounded-full"><i class="fas fa-warehouse fa-lg"></i></div><div><h3 class="text-sm text-gray-500 dark:text-gray-400">انبارها</h3><span id="totalWarehouses" class="text-2xl font-bold">0</span></div></div>
+                    </section>
+                    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow"><h3 class="font-semibold mb-4">📈 موجودی بر اساس انبار</h3><div id="warehouseStockChart" class="h-72"></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow"><h3 class="font-semibold mb-4">🔄 تراکنش‌های اخیر</h3><div id="transactionTrendChart" class="h-72"></div></div>
+                    </section>
+                    <section id="alertsSection" class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow"><div class="flex items-center gap-3 mb-4"><h2 class="text-lg font-semibold">🚨 هشدارهای موجودی کم</h2><span id="alertCount" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span></div><div id="alertsContainer" class="space-y-2"></div></section>
+                </div>
+
+                <div id="tab-inventory" class="tab-pane">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6"><div class="flex flex-col md:flex-row gap-4 items-center"><input type="text" id="searchInventory" placeholder="جستجوی کالا..." class="w-full md:w-1/2 p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><select id="warehouseFilter" class="w-full md:w-auto p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="">همه انبارها</option></select><button id="addItemBtn" class="w-full md:w-auto bg-green-600 text-white p-2 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">➕ کالای جدید</button></div></div>
+                    <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow"><table class="w-full text-sm"><thead class="bg-gray-50 dark:bg-gray-700"><tr><th class="p-3 text-right">نام کالا</th><th class="p-3 text-center">انبار</th><th class="p-3 text-center">موجودی فعلی</th><th class="p-3 text-center">حداقل موجودی</th><th class="p-3 text-center">وضعیت</th><th class="p-3 text-center">عملیات</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div>
+                </div>
+                
+                <div id="tab-transactions" class="tab-pane">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6"><div class="flex flex-col md:flex-row gap-4 items-center"><button id="addStockBtn" class="w-full md:w-auto bg-green-600 text-white p-2 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">➕ ورود کالا</button><button id="removeStockBtn" class="w-full md:w-auto bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 flex items-center justify-center gap-2">➖ خروج کالا</button><select id="transactionTypeFilter" class="w-full md:w-auto p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="">همه تراکنش‌ها</option><option value="IN">ورود</option><option value="OUT">خروج</option></select></div></div>
+                    <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow"><table class="w-full text-sm"><thead class="bg-gray-50 dark:bg-gray-700"><tr><th class="p-3 text-right">تاریخ</th><th class="p-3 text-center">نوع</th><th class="p-3 text-right">کالا</th><th class="p-3 text-center">انبار</th><th class="p-3 text-center">تعداد</th><th class="p-3 text-right">پروژه</th><th class="p-3 text-center">کاربر</th><th class="p-3 text-right">توضیحات</th></tr></thead><tbody id="transactionsTableBody"></tbody></table></div>
+                </div>
+                
+                <div id="tab-panel-config" class="tab-pane">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow"><h3 class="text-lg font-semibold mb-4">تعریف/ویرایش تجهیزات</h3><form id="panelConfigForm"><div class="mb-4"><label for="panelCodeSelect" class="block text-sm font-medium mb-1">کد تابلو:</label><select id="panelCodeSelect" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required><option value="">انتخاب کد تابلو</option></select></div><div id="panelItemsContainer" class="space-y-2 mb-4"></div><button type="button" id="addPanelItemRowBtn" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2">➕ افزودن آیتم</button><div class="flex justify-end mt-6"><button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">ذخیره BOM</button></div></form></div><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow"><h3 class="text-lg font-semibold mb-4">لیست BOM های تعریف شده</h3><div id="panelConfigsContainer" class="space-y-4 max-h-96 overflow-y-auto"></div></div></div>
+                </div>
+                
+                <div id="tab-reports" class="tab-pane">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow text-center"><h3 class="font-semibold text-lg">📊 گزارش موجودی</h3><p class="text-sm text-gray-500 my-2">گزارش کامل موجودی تمام انبارها</p><div class="flex gap-2 mt-4"><button class="w-full bg-blue-600 text-white py-2 rounded-md" onclick="dashboard.generateInventoryReport('pdf')">📄 PDF</button><button class="w-full bg-green-600 text-white py-2 rounded-md" onclick="dashboard.generateInventoryReport('excel')">📊 Excel</button></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow text-center"><h3 class="font-semibold text-lg">🔄 گزارش تراکنش‌ها</h3><p class="text-sm text-gray-500 my-2">تاریخچه کامل ورود و خروج کالاها</p><div class="flex gap-2 mt-4"><button class="w-full bg-blue-600 text-white py-2 rounded-md" onclick="dashboard.generateTransactionReport('pdf')">📄 PDF</button><button class="w-full bg-green-600 text-white py-2 rounded-md" onclick="dashboard.generateTransactionReport('excel')">📊 Excel</button></div></div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow text-center"><h3 class="font-semibold text-lg">⚠️ گزارش موجودی‌های کم</h3><p class="text-sm text-gray-500 my-2">لیست کالاهای نیازمند شارژ</p><div class="flex gap-2 mt-4"><button class="w-full bg-yellow-500 text-white py-2 rounded-md" onclick="dashboard.generateLowStockReport()">📋 مشاهده</button></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modals -->
+<div id="stockModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+        <div class="p-5 border-b dark:border-gray-700 flex justify-between items-center"><h3 id="modalTitle" class="text-xl font-semibold"></h3><button class="close-modal-btn text-gray-400 hover:text-gray-600">&times;</button></div>
+        <form id="stockForm" class="p-6 space-y-4">
+            <input type="hidden" id="transactionType">
+            <div><label for="warehouseSelectModal" class="block text-sm font-medium mb-1">انبار:</label><select id="warehouseSelectModal" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required></select></div>
+            <div><label for="itemSelectModal" class="block text-sm font-medium mb-1">کالا:</label><select id="itemSelectModal" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required></select></div>
+            <div><label for="quantityInput" class="block text-sm font-medium mb-1">تعداد:</label><input type="number" id="quantityInput" min="1" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required></div>
+            <div><label for="notesInput" class="block text-sm font-medium mb-1">توضیحات:</label><textarea id="notesInput" rows="2" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+            <div id="projectGroup"><label for="projectSelect" class="block text-sm font-medium mb-1">پروژه (برای خروج):</label><select id="projectSelect" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></select></div>
+            <div class="flex justify-end gap-3 pt-4"><button type="button" class="close-modal-btn bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 px-4 rounded-md">انصراف</button><button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">ثبت تراکنش</button></div>
+        </form>
+    </div>
+</div>
+<div id="itemModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+        <div class="p-5 border-b dark:border-gray-700 flex justify-between items-center"><h3 id="itemModalTitle" class="text-xl font-semibold"></h3><button class="close-modal-btn text-gray-400 hover:text-gray-600">&times;</button></div>
+        <form id="itemForm" class="p-6 space-y-4">
+            <input type="hidden" id="itemId">
+            <div><label for="itemName" class="block text-sm font-medium mb-1">نام کالا:</label><input type="text" id="itemName" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required></div>
+            <div><label for="itemDescription" class="block text-sm font-medium mb-1">توضیحات:</label><textarea id="itemDescription" rows="2" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+            <div><label for="minStockLevel" class="block text-sm font-medium mb-1">حداقل موجودی:</label><input type="number" id="minStockLevel" min="0" value="0" class="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+            <div class="flex justify-end gap-3 pt-4"><button type="button" class="close-modal-btn bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 px-4 rounded-md">انصراف</button><button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">ثبت کالا</button></div>
+        </form>
+    </div>
+</div>
+
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-[1100]"></div>
+    
+<script>
+    class WarehouseDashboard {
+        constructor() {
+            this.token = localStorage.getItem('token');
+            this.currentUser = null;
+            this.inventoryData = [];
+            this.warehouses = [];
+            this.items = [];
+            this.projects = [];
+            this.transactions = [];
+            this.panelConfigs = {};
+            this.panelCodes = [];
+            this.charts = {};
+            this.init();
+        }
+
+        async init() {
+            await this.checkAuth(); 
+            this.setupThemeToggle();
+            this.setupEventListeners();
+            await this.loadInitialData();
+            this.setupWebSocket();
+        }
+        
+        async checkAuth() {
+            if (!this.token) {
+                this.logout();
+                throw new Error("Redirecting to login.");
+            }
+            try {
+                const user = await this.apiFetch('/auth/me');
+                this.currentUser = user;
+                document.getElementById('userName').textContent = user.name;
+                this.setupSidebar(user.role);
+            } catch (error) {
+                console.error('Auth check failed:', error.message);
+                throw error;
+            }
+        }
+
+        logout = () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        setupSidebar(userRole) {
+            const navContainer = document.getElementById('sidebar-nav');
+            if (!navContainer) return;
+            
+            const links = [
+                { href: "/assembler-dashboard", icon: "fa-users-cog", text: "آمار و گزارش کار", role: ["employee", "supervisor"] },
+                { href: "/employee-dashboard", icon: "fa-user", text: "گزارش‌های من", role: ["employee", "supervisor"] },
+                { separator: true, role: ["supervisor"] },
+                { title: "پنل مدیریت", role: ["supervisor"] },
+                { href: "/dashboard", icon: "fa-tachometer-alt", text: "داشبورد اصلی", role: ["supervisor"] },
+                { href: "/manager", icon: "fa-user-shield", text: "پنل مدیر", role: ["supervisor"] },
+                { href: "/workshop", icon: "fa-hard-hat", text: "پنل کارگاه", role: ["supervisor"] },
+                { href: "/reports", icon: "fa-chart-line", text: "گزارش‌های KPI", role: ["supervisor"] },
+                { href: "/warehouse-dashboard", icon: "fa-warehouse", text: "داشبورد انبار", role: ["supervisor"] },
+                { separator: true, border: true, role: ["supervisor"] },
+                { href: "/personnel-management", icon: "fa-users", text: "مدیریت پرسنل", role: ["supervisor"] },
+                { href: "/supervisor-dashboard", icon: "fa-user-check", text: "داشبورد ناظر", role: ["supervisor"] },
+            ];
+            
+            const currentPage = window.location.pathname;
+            navContainer.innerHTML = links
+                .filter(link => link.role.includes(userRole))
+                .map(link => {
+                    if (link.separator) return `<hr class="${link.border ? 'pt-4 mt-4 border-t' : 'my-3'} border-gray-200 dark:border-gray-700">`;
+                    if (link.title) return `<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">${link.text}</h6>`;
+                    
+                    const isActive = currentPage === link.href;
+                    const activeClasses = 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50 font-semibold';
+                    const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700';
+                    
+                    return `<a href="${link.href}" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg ${isActive ? activeClasses : inactiveClasses}">
+                                <i class="fas ${link.icon} fa-fw ml-3"></i><span>${link.text}</span>
+                            </a>`;
+                }).join('');
+        }
+
+        setupThemeToggle() {
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const darkIcon = document.getElementById('themeToggleDarkIcon');
+            const lightIcon = document.getElementById('themeToggleLightIcon');
+
+            const applyTheme = (isDark) => {
+                document.documentElement.classList.toggle('dark', isDark);
+                lightIcon.classList.toggle('hidden', !isDark);
+                darkIcon.classList.toggle('hidden', isDark);
+                this.updateCharts();
+            };
+
+            const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            applyTheme(isDark);
+
+            themeToggleBtn.addEventListener('click', () => {
+                const newIsDark = !document.documentElement.classList.contains('dark');
+                localStorage.theme = newIsDark ? 'dark' : 'light';
+                applyTheme(newIsDark);
+            });
+        }
+        
+        apiFetch = async (endpoint, options = {}) => {
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+            
+            try {
+                const response = await fetch(endpoint, { ...options, headers });
+                if ([401, 403].includes(response.status)) { this.logout(); throw new Error('Unauthorized'); }
+                if (response.status === 204) return null;
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || `HTTP Error: ${response.status}`);
+                return data;
+            } catch (error) {
+                if (error.message !== 'Unauthorized') this.showNotification(error.message, 'error');
+                throw error;
+            }
+        }
+        
+        async loadInitialData() {
+            this.showNotification('در حال بارگذاری داده‌ها...', 'info');
+            try {
+                const [inventory, warehouses, items, projects, transactions] = await Promise.all([
+                    this.apiFetch('/inventory/items/'),
+                    this.apiFetch('/warehouses/'),
+                    this.apiFetch('/warehouse-items/'),
+                    this.apiFetch('/projects/'),
+                    this.apiFetch('/inventory/history/')
+                ]);
+                
+                this.inventoryData = inventory || [];
+                this.warehouses = warehouses || [];
+                this.items = items || [];
+                this.projects = projects || [];
+                this.transactions = transactions || [];
+
+                await this.loadPanelData();
+                this.renderAll();
+                this.showNotification('داده‌ها با موفقیت بارگذاری شدند.', 'success');
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+            }
+        }
+        
+        async loadPanelData() {
+            this.panelCodes = [...new Set(this.projects.map(p => p.panel_code).filter(Boolean))].sort();
+            this.panelConfigs = {};
+            for (const code of this.panelCodes) {
+                try {
+                    const items = await this.apiFetch(`/inventory/panel-items/${code}`);
+                    if (items && items.length > 0) this.panelConfigs[code] = items;
+                } catch (e) { /* Ignore */ }
+            }
+        }
+
+        renderAll() {
+            this.activateTab(document.querySelector('.tab-btn.active').dataset.tab);
+            this.renderInventoryTable();
+            this.populateSelects();
+            this.renderTransactionsTable();
+            this.renderPanelConfigs();
+            this.updateSummary();
+            this.updateCharts();
+            this.showLowStockAlerts();
+        }
+
+        setupEventListeners() {
+            document.getElementById('refreshBtn').addEventListener('click', () => this.loadInitialData());
+            document.getElementById('logoutButton').addEventListener('click', this.logout);
+            document.getElementById('user-menu-button').addEventListener('click', () => document.getElementById('user-menu').classList.toggle('hidden'));
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', e => this.activateTab(e.target.dataset.tab)));
+            document.getElementById('addItemBtn').addEventListener('click', () => this.showItemModal());
+            document.getElementById('addStockBtn').addEventListener('click', () => this.showStockModal('IN'));
+            document.getElementById('removeStockBtn').addEventListener('click', () => this.showStockModal('OUT'));
+            
+            document.getElementById('stockForm').addEventListener('submit', e => this.handleStockFormSubmit(e));
+            document.getElementById('itemForm').addEventListener('submit', e => this.handleItemFormSubmit(e));
+            document.querySelectorAll('.close-modal-btn').forEach(el => el.addEventListener('click', () => this.closeAllModals()));
+            
+            document.getElementById('searchInventory').addEventListener('input', () => this.renderInventoryTable());
+            document.getElementById('warehouseFilter').addEventListener('change', () => this.renderInventoryTable());
+            document.getElementById('transactionTypeFilter').addEventListener('change', () => this.renderTransactionsTable());
+            
+            document.getElementById('panelConfigForm').addEventListener('submit', e => this.handlePanelConfigSubmit(e));
+            document.getElementById('addPanelItemRowBtn').addEventListener('click', () => this.addPanelItemRow());
+            document.getElementById('panelCodeSelect').addEventListener('change', e => this.populatePanelItemsForEdit(e.target.value));
+        }
+
+        activateTab(tabId) {
+            document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        updateSummary() {
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            const todayTransactions = this.transactions.filter(t => new Date(t.timestamp) >= todayStart);
+            const lowStockItemsCount = this.inventoryData.filter(i => i.min_stock_level > 0 && i.current_stock <= i.min_stock_level).length;
+            document.getElementById('totalItems').textContent = this.items.length;
+            document.getElementById('lowStockItems').textContent = lowStockItemsCount;
+            document.getElementById('todayTransactions').textContent = todayTransactions.length;
+            document.getElementById('totalWarehouses').textContent = this.warehouses.length;
+        }
+
+        renderInventoryTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const searchTerm = document.getElementById('searchInventory').value.toLowerCase();
+            const warehouseFilter = document.getElementById('warehouseFilter').value;
+            tbody.innerHTML = '';
+            const filtered = this.inventoryData.filter(item => (item.item_name.toLowerCase().includes(searchTerm)) && (!warehouseFilter || item.warehouse_id == warehouseFilter));
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">موردی یافت نشد.</td></tr>';
+                return;
+            }
+            filtered.forEach(item => {
+                const status = this.getStockStatus(item.current_stock, item.min_stock_level);
+                tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="p-3 font-medium">${item.item_name}</td>
+                    <td class="p-3 text-center">${item.warehouse_name}</td>
+                    <td class="p-3 text-center font-mono">${item.current_stock}</td>
+                    <td class="p-3 text-center font-mono">${item.min_stock_level}</td>
+                    <td class="p-3 text-center"><span class="status-badge status-${status} px-2 py-1 text-xs rounded-full">${this.getStatusText(status)}</span></td>
+                    <td class="p-3 text-center space-x-1 space-x-reverse"><button class="text-blue-500 hover:text-blue-700" onclick="dashboard.showStockModal('IN', '${item.item_name}', ${item.warehouse_id})">➕</button><button class="text-yellow-500 hover:text-yellow-700" onclick="dashboard.showStockModal('OUT', '${item.item_name}', ${item.warehouse_id})">➖</button></td>
+                </tr>`;
+            });
+        }
+        renderTransactionsTable() {
+            const tbody = document.getElementById('transactionsTableBody');
+            const typeFilter = document.getElementById('transactionTypeFilter').value;
+            tbody.innerHTML = '';
+            const filtered = this.transactions.filter(t => !typeFilter || t.transaction_type === typeFilter).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center p-4">تراکنشی یافت نشد.</td></tr>';
+                return;
+            }
+            filtered.forEach(t => {
+                tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="p-3">${new Date(t.timestamp).toLocaleString('fa-IR')}</td>
+                    <td class="p-3 text-center"><span class="transaction-badge ${t.transaction_type.toLowerCase()} px-2 py-1 text-xs rounded-full">${t.transaction_type === 'IN' ? 'ورود' : 'خروج'}</span></td>
+                    <td class="p-3">${t.item.item_name}</td>
+                    <td class="p-3 text-center">${t.warehouse.name}</td>
+                    <td class="p-3 text-center font-mono">${t.quantity}</td>
+                    <td class="p-3">${t.project ? t.project.request_id : '-'}</td>
+                    <td class="p-3 text-center">${t.user.name}</td>
+                    <td class="p-3">${t.notes || '-'}</td>
+                </tr>`;
+            });
+        }
+        
+        renderPanelConfigs() {
+            const container = document.getElementById('panelConfigsContainer');
+            container.innerHTML = '';
+            Object.entries(this.panelConfigs).forEach(([code, items]) => {
+                container.innerHTML += `<div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg"><div class="flex justify-between items-center mb-2"><h4 class="font-semibold">${code}</h4><button class="text-sm text-blue-500 hover:underline" onclick="dashboard.editPanelConfig('${code}')">ویرایش</button></div><div class="space-y-1 text-sm">${items.map(item => `<div class="flex justify-between"><span>${item.item_name}</span><span class="font-mono">${item.quantity_required} عدد</span></div>`).join('')}</div></div>`;
+            });
+        }
+        
+        populateSelects() {
+            document.querySelectorAll('#warehouseFilter, #warehouseSelectModal').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = `<option value="">${select.id === 'warehouseFilter' ? 'همه انبارها' : 'انتخاب انبار'}</option>`;
+                this.warehouses.forEach(w => select.innerHTML += `<option value="${w.id}">${w.name}</option>`);
+                select.value = currentVal;
+            });
+            document.querySelectorAll('#itemSelectModal, .item-name').forEach(select => {
+                 const currentVal = select.value;
+                 select.innerHTML = '<option value="">انتخاب کالا</option>';
+                 this.items.sort((a,b) => a.item_name.localeCompare(b.item_name)).forEach(i => select.innerHTML += `<option value="${i.item_name}">${i.item_name}</option>`);
+                 select.value = currentVal;
+            });
+            const projSelect = document.getElementById('projectSelect');
+            projSelect.innerHTML = '<option value="">بدون پروژه</option>';
+            this.projects.forEach(p => projSelect.innerHTML += `<option value="${p.id}">${p.name} (${p.request_id})</option>`);
+            const panelCodeSelect = document.getElementById('panelCodeSelect');
+            panelCodeSelect.innerHTML = '<option value="">انتخاب کد تابلو</option>';
+            this.panelCodes.forEach(code => panelCodeSelect.innerHTML += `<option value="${code}">${code}</option>`);
+        }
+        
+        showStockModal(type, itemName = '', warehouseId = '') {
+            document.getElementById('stockForm').reset();
+            document.getElementById('modalTitle').textContent = type === 'IN' ? 'ثبت ورود کالا' : 'ثبت خروج کالا';
+            document.getElementById('transactionType').value = type;
+            document.getElementById('projectGroup').style.display = type === 'OUT' ? 'block' : 'none';
+            if (itemName) document.getElementById('itemSelectModal').value = itemName;
+            if (warehouseId) document.getElementById('warehouseSelectModal').value = warehouseId;
+            document.getElementById('stockModal').classList.remove('hidden');
+        }
+        
+        showItemModal(item = null) {
+            document.getElementById('itemForm').reset();
+            const modal = document.getElementById('itemModal');
+            modal.querySelector('#itemModalTitle').textContent = item ? 'ویرایش کالا' : 'افزودن کالای جدید';
+            document.getElementById('itemId').value = item ? item.id : '';
+            if(item) {
+                document.getElementById('itemName').value = item.item_name;
+                document.getElementById('itemDescription').value = item.description || '';
+                document.getElementById('minStockLevel').value = item.min_stock_level;
+            }
+            modal.classList.remove('hidden');
+        }
+        
+        closeAllModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+        }
+        
+        async handleStockFormSubmit(e) {
+            e.preventDefault();
+            const type = document.getElementById('transactionType').value;
+            const payload = {
+                warehouse_id: parseInt(document.getElementById('warehouseSelectModal').value),
+                item_name: document.getElementById('itemSelectModal').value,
+                quantity: parseInt(document.getElementById('quantityInput').value),
+                notes: document.getElementById('notesInput').value,
+                ...(type === 'OUT' && { project_id: parseInt(document.getElementById('projectSelect').value) || null })
+            };
+            try {
+                await this.apiFetch(`/inventory/${type.toLowerCase()}/`, { method: 'POST', body: JSON.stringify(payload) });
+                this.showNotification('تراکنش با موفقیت ثبت شد', 'success');
+                this.closeAllModals();
+                await this.loadInitialData();
+            } catch (error) {}
+        }
+        
+        async handleItemFormSubmit(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('itemId').value;
+            const payload = { item_name: document.getElementById('itemName').value, description: document.getElementById('itemDescription').value, min_stock_level: parseInt(document.getElementById('minStockLevel').value) };
+            const method = itemId ? 'PUT' : 'POST';
+            const endpoint = itemId ? `/warehouse-items/${itemId}` : '/warehouse-items/';
+            try {
+                await this.apiFetch(endpoint, { method, body: JSON.stringify(payload) });
+                this.showNotification('کالا با موفقیت ذخیره شد', 'success');
+                this.closeAllModals();
+                await this.loadInitialData();
+            } catch (error) {}
+        }
+        
+        populatePanelItemsForEdit(panelCode) {
+            const container = document.getElementById('panelItemsContainer');
+            container.innerHTML = '';
+            const items = this.panelConfigs[panelCode] || [];
+            if (items.length === 0) this.addPanelItemRow();
+            else items.forEach(item => this.addPanelItemRow(item.item_name, item.quantity_required));
+        }
+        
+        editPanelConfig(panelCode) {
+            this.activateTab('panel-config');
+            document.getElementById('panelCodeSelect').value = panelCode;
+            this.populatePanelItemsForEdit(panelCode);
+        }
+        
+        addPanelItemRow(itemName = '', quantity = 1) {
+            const container = document.getElementById('panelItemsContainer');
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            let itemOptions = '<option value="">انتخاب کالا</option>' + this.items.map(i => `<option value="${i.item_name}" ${i.item_name === itemName ? 'selected' : ''}>${i.item_name}</option>`).join('');
+            div.innerHTML = `<select class="item-name w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" required>${itemOptions}</select>
+                           <input type="number" class="item-quantity p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 w-20" value="${quantity}" min="1" required>
+                           <button type="button" class="text-red-500 hover:text-red-700" onclick="this.parentElement.remove()">حذف</button>`;
+            container.appendChild(div);
+        }
+
+        async handlePanelConfigSubmit(e) {
+            e.preventDefault();
+            const panelCode = document.getElementById('panelCodeSelect').value;
+            if (!panelCode) return this.showNotification('لطفا یک کد تابلو انتخاب کنید', 'error');
+            const items = Array.from(document.querySelectorAll('#panelItemsContainer .item-name')).map((select, i) => ({
+                item_name: select.value,
+                quantity_required: parseInt(document.querySelectorAll('#panelItemsContainer .item-quantity')[i].value)
+            }));
+            if (items.some(item => !item.item_name || !item.quantity_required)) return this.showNotification('لطفا تمام فیلدهای آیتم‌ها را پر کنید', 'error');
+            const payload = { panel_code: panelCode, items };
+            try {
+                await this.apiFetch('/inventory/panel-items/', { method: 'POST', body: JSON.stringify(payload) });
+                this.showNotification(`BOM برای ${panelCode} با موفقیت ذخیره شد.`, 'success');
+                await this.loadInitialData();
+            } catch(error) {}
+        }
+        
+        showLowStockAlerts() {
+            const container = document.getElementById('alertsContainer');
+            const countBadge = document.getElementById('alertCount');
+            container.innerHTML = '';
+            const lowStockItems = this.inventoryData.filter(i => i.min_stock_level > 0 && i.current_stock <= i.min_stock_level);
+            countBadge.textContent = lowStockItems.length;
+            if (lowStockItems.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">هیچ هشدار فعالی وجود ندارد.</p>';
+                return;
+            }
+            lowStockItems.forEach(item => {
+                container.innerHTML += `<div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg text-sm">کالای <strong>${item.item_name}</strong> در انبار <strong>${item.warehouse_name}</strong> به حداقل موجودی (${item.min_stock_level}) رسیده است. (موجودی فعلی: ${item.current_stock})</div>`;
+            });
+        }
+        
+        updateCharts() {
+            this.initWarehouseStockChart();
+            this.initTransactionTrendChart();
+        }
+
+        initWarehouseStockChart() {
+            const series = this.warehouses.map(w => this.inventoryData.filter(i => i.warehouse_id === w.id).reduce((sum, item) => sum + item.current_stock, 0));
+            const labels = this.warehouses.map(w => w.name);
+            const isDark = document.documentElement.classList.contains('dark');
+            const options = { series, labels, chart: { type: 'donut', height: 300, fontFamily: 'Vazirmatn' }, theme: { mode: isDark ? 'dark' : 'light' }, legend: { position: 'bottom' }};
+            if (this.charts.warehouseStock) this.charts.warehouseStock.updateOptions(options, true);
+            else this.charts.warehouseStock = new ApexCharts(document.querySelector("#warehouseStockChart"), options);
+            this.charts.warehouseStock.render();
+        }
+        
+        initTransactionTrendChart() {
+            const series = [{ name: 'ورود', data: [] }, { name: 'خروج', data: [] }];
+            const categories = [];
+            const last7Days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().split('T')[0]; }).reverse();
+            
+            last7Days.forEach(day => {
+                categories.push(new Date(day).toLocaleDateString('fa-IR', { day: 'numeric', month: 'short' }));
+                series[0].data.push(this.transactions.filter(t => t.timestamp.startsWith(day) && t.transaction_type === 'IN').reduce((sum, t) => sum + t.quantity, 0));
+                series[1].data.push(this.transactions.filter(t => t.timestamp.startsWith(day) && t.transaction_type === 'OUT').reduce((sum, t) => sum + t.quantity, 0));
+            });
+            const isDark = document.documentElement.classList.contains('dark');
+            const options = { series, chart: { type: 'bar', height: 300, fontFamily: 'Vazirmatn' }, theme: { mode: isDark ? 'dark' : 'light' }, xaxis: { categories }, dataLabels: { enabled: false }, colors: ['#27ae60', '#e74c3c'] };
+            if(this.charts.transactionTrend) this.charts.transactionTrend.updateOptions(options, true);
+            else this.charts.transactionTrend = new ApexCharts(document.querySelector("#transactionTrendChart"), options);
+            this.charts.transactionTrend.render();
+        }
+
+        getStockStatus = (current, min) => min > 0 && current <= min ? (current <= 0 ? 'critical' : 'low') : 'normal';
+        getStatusText = status => ({ normal: 'عادی', low: 'کم', critical: 'بحرانی' }[status]);
+        
+        showNotification(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+            const icon = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const toastHtml = `<div id="${toastId}" class="max-w-xs ${colors[type]} text-white text-sm rounded-lg shadow-lg p-3 flex items-center transition-all duration-300 transform translate-x-full" role="alert"><i class="fas ${icon[type]} ml-2"></i><span>${message}</span></div>`;
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            setTimeout(() => { const toast = document.getElementById(toastId); if(toast) toast.classList.remove('translate-x-full'); }, 100);
+            setTimeout(() => { const toast = document.getElementById(toastId); if (toast) { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; setTimeout(() => toast.remove(), 500); } }, 4500);
+        }
+        
+        setupWebSocket() {
+            const ws = new WebSocket(`${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws?token=${this.token}`);
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                this.showNotification(`رویداد جدید از سرور: ${data.type}`, 'info');
+                this.loadInitialData();
+            };
+            ws.onclose = () => setTimeout(() => this.setupWebSocket(), 5000);
+        }
+        
+        generateInventoryReport(format) { this.showNotification(`در حال آماده‌سازی گزارش موجودی با فرمت ${format}... (در حال توسعه)`, 'info'); }
+        generateTransactionReport(format) { this.showNotification(`در حال آماده‌سازی گزارش تراکنش‌ها با فرمت ${format}... (در حال توسعه)`, 'info'); }
+        generateLowStockReport() { this.showNotification('در حال آماده‌سازی گزارش موجودی‌های کم... (در حال توسعه)', 'info'); }
+    }
+
+    window.dashboard = new WarehouseDashboard();
+</script>
+
+</body>
+</html>

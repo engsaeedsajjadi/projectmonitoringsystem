@@ -1,0 +1,40 @@
+<div class="slip-instance">
+    <h2>برگه خروج و تحویل تابلو</h2>
+    <section class="details-grid">
+        <p><strong>شماره درخواست:</strong> {{ project.request_id }}</p>
+        <p><strong>کد تابلو:</strong> {{ project.panel_code or '-' }}</p>
+        <p><strong>مشتری:</strong> {{ project.customer_name }}</p>
+        <p><strong>تاریخ خروج:</strong> {{ report_date_jalali }}</p>
+    </section>
+    <div class="table-wrapper">
+        <table class="summary-table">
+            <thead>
+                <tr><th style="width: 70%;">عنوان</th><th style="width: 30%;">تعداد</th></tr>
+            </thead>
+            <tbody>
+                {% if summary_data['ظرفیت تابلو (تکفاز)'] is not none %}
+                <tr><td style="background-color:#eef2ff;">ظرفیت تابلو (تکفاز)</td><td style="background-color:#eef2ff;">{{ summary_data['ظرفیت تابلو (تکفاز)'] | default(0) }}</td></tr>
+                <tr><td style="background-color:#eef2ff;">کنتور تکفاز خریداری شده</td><td style="background-color:#eef2ff;">{{ summary_data['تعداد خریداری شده (تکفاز)'] | default(0) }}</td></tr>
+                <tr><td style="background-color:#dbeafe;color:#1e40af;">تعداد رزرو</td><td style="background-color:#dbeafe;color:#1e40af;">{{ summary_data['تعداد رزرو'] | default(0) }}</td></tr>
+                {% endif %}
+                <tr><td>کنتور تک فاز</td><td>{{ summary_data.get('کنتور تک فاز', 0) }}</td></tr>
+                <tr><td>کنتور سه فاز</td><td>{{ summary_data.get('کنتور سه فاز', 0) }}</td></tr>
+                <tr><td colspan="2" style="background-color:#f9fafb;text-align:center;font-weight:bold;">فیوزهای تک فاز</td></tr>
+                <tr><td>فیوز تک فاز 16</td><td>{{ summary_data.get('فیوز تک فاز 16', 0) }}</td></tr>
+                <tr><td>فیوز تک فاز 25</td><td>{{ summary_data.get('فیوز تک فاز 25', 0) }}</td></tr>
+                <tr><td>فیوز تک فاز 32</td><td>{{ summary_data.get('فیوز تک فاز 32', 0) }}</td></tr>
+                <tr><td colspan="2" style="background-color:#f9fafb;text-align:center;font-weight:bold;">فیوزهای سه فاز</td></tr>
+                <tr><td>فیوز سه فاز 25</td><td>{{ summary_data.get('فیوز سه فاز 25', 0) }}</td></tr>
+                <tr><td>فیوز سه فاز 32</td><td>{{ summary_data.get('فیوز سه فاز 32', 0) }}</td></tr>
+                <tr><td>فیوز سه فاز 63</td><td>{{ summary_data.get('فیوز سه فاز 63', 0) }}</td></tr>
+                <tr><td colspan="2" style="background-color:#f9fafb;text-align:center;font-weight:bold;">ملزومات</td></tr>
+                <tr><td>سکو</td><td>{{ summary_data.get('سکو', 0) }}</td></tr>
+                <tr><td>تسمه استیل</td><td>{{ summary_data.get('تسمه استیل', 0) }}</td></tr>
+                <tr><td>بست تسمه استیل</td><td>{{ summary_data.get('بست تسمه استیل', 0) }}</td></tr>
+                <tr><td>لوله خرطومی</td><td>{{ summary_data.get('لوله خرطومی', 0) }}</td></tr>
+                <tr><td>لوله نیم گرد</td><td>{{ summary_data.get('لوله نیم گرد', 0) }}</td></tr>
+                <tr><td>پیچ ۱۶*۳۰۰</td><td>{{ summary_data.get('پیچ ۱۶*۳۰۰', 0) }}</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

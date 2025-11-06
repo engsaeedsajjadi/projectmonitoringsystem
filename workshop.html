@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد کارگاه مونتاژ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: "Vazirmatn", sans-serif; }
+        details > summary { cursor: pointer; list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] > summary .accordion-arrow { transform: rotate(180deg); }
+        .accordion-arrow { transition: transform 0.3s ease; }
+        .tab-button { transition: all 0.2s; border-bottom: 2px solid transparent; padding: 0.5rem 1rem; }
+        .tab-button.active { border-color: #3b82f6; color: #3b82f6; font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: contentFadeIn 0.4s ease-out; }
+        @keyframes contentFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .project-card { transition: all 0.3s; }
+        .project-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .stuck-alert { animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        .card-highlight { animation: highlight-pulse 2s ease-out; }
+        @keyframes highlight-pulse { 0%, 100% { background-color: #fff; } 50% { background-color: #ecfccb; } }
+        html.dark .card-highlight { animation-name: highlight-pulse-dark; }
+        @keyframes highlight-pulse-dark { 0%, 100% { background-color: #1f2937; } 50% { background-color: #365314; } }
+
+        .shamsi-datepicker-display { background-color: #fff; border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; cursor: pointer; transition: all 0.2s; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-main { background-color: #1f2937; border-color: #4b5563; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-display { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .cell.today { background-color: #4f46e5 !important; color: white !important; }
+        
+        .toast-success { background-color: #10b981; } .toast-error { background-color: #ef4444; } .toast-info { background-color: #3b82f6; }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { 'vazir': ['Vazirmatn', 'sans-serif'] } } } }
+    </script>
+</head>
+<body class="p-0 text-gray-700 dark:text-gray-300">
+<div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+	<!-- Sidebar (نسخه نهایی و هوشمند) -->
+	<aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+		<div class="flex flex-col h-full">
+			<div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+				<i class="fas fa-cogs text-blue-600 text-2xl"></i>
+				<span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+			</div>
+			<nav class="flex-1 px-4 py-6 space-y-2 text-sm">
+				<!-- ========= لینک‌های عمومی برای همه کاربران (کارمند و مدیر) ========= -->
+				<a href="/assembler-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-users-cog fa-fw ml-3"></i>
+					<span>آمار و گزارش کار</span>
+				</a>
+				<a href="/employee-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-user fa-fw ml-3"></i>
+					<span>گزارش‌های من</span>
+				</a>
+				<!-- ========= لینک‌های مخصوص مدیر (Supervisor) ========= -->
+				<div class="supervisor-only" style="display: none;">
+					<hr class="my-3 border-gray-200 dark:border-gray-700">
+					<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">پنل مدیریت</h6>
+					<a href="/dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-tachometer-alt fa-fw ml-3"></i>
+						<span>داشبورد اصلی</span>
+					</a>
+					<a href="/manager" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-user-shield fa-fw ml-3"></i>
+						<span>پنل مدیر</span>
+					</a>
+					<a href="/workshop" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-hard-hat fa-fw ml-3"></i>
+						<span>پنل کارگاه</span>
+					</a>
+					<a href="/reports" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-chart-line fa-fw ml-3"></i>
+						<span>گزارش‌های KPI</span>
+					</a>
+					<div class="pt-4 mt-4 border-t dark:border-gray-700">
+						<a href="/personnel-management" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-users fa-fw ml-3"></i>
+							<span>مدیریت پرسنل</span>
+						</a>
+						<a href="/supervisor-dashboard" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-user-check fa-fw ml-3"></i>
+							<span>داشبورد ناظر</span>
+						</a>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</aside>
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+            <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3"><i class="fas fa-cubes text-blue-600"></i><span>داشبورد کارگاه</span></h1>
+            <div class="flex items-center gap-4">
+                 <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"><i class="fas fa-moon" id="theme-toggle-dark-icon"></i><i class="fas fa-sun hidden" id="theme-toggle-light-icon"></i></button>
+                 <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                 <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2"><span id="userName" class="font-semibold text-sm"></span><i class="fas fa-chevron-down text-xs"></i></button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20">
+                        <a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب</a>
+                    </div>
+                 </div>
+             </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+            <!-- Accordions and Reports -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Barcode Scanner -->
+                <details class="bg-white rounded-lg shadow-sm border border-slate-200 dark:bg-gray-800 dark:border-gray-700" open>
+                    <summary class="p-4 font-bold text-slate-700 dark:text-gray-300 flex justify-between items-center"><i class="fas fa-barcode mr-2 text-slate-500"></i><span>ثبت خروج / برگشت با بارکدخوان</span><i class="fas fa-chevron-down accordion-arrow text-slate-500"></i></summary>
+                    <div class="p-4 border-t border-slate-200 dark:border-gray-700">
+                        <input type="text" id="barcodeInput" placeholder="منتظر اسکن بارکد..." class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600">
+                        <p id="barcodeStatusMessage" class="mt-2 text-sm min-h-[1.25rem] text-center font-medium"></p>
+                    </div>
+                </details>
+                <!-- Group Reports -->
+                <details class="bg-white rounded-lg shadow-sm border border-slate-200 dark:bg-gray-800 dark:border-gray-700">
+                    <summary class="p-4 font-bold text-slate-700 dark:text-gray-300 flex justify-between items-center"><i class="fas fa-file-alt mr-2 text-slate-500"></i><span>گزارش‌های گروهی</span><i class="fas fa-chevron-down accordion-arrow text-slate-500"></i></summary>
+                    <div class="p-4 border-t border-slate-200 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2 p-3 border rounded-lg bg-slate-50 dark:bg-gray-700/50 dark:border-gray-600">
+                            <h4 class="font-semibold text-slate-800 dark:text-gray-200 mb-2">گزارش آماده تحویل</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <a href="/reports/ready-for-delivery/detailed-excel?direction=west" target="_blank" class="text-center bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 px-4 py-2 text-sm rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 font-medium">غرب (اکسل)</a><button onclick="printReport('west')" class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-4 py-2 text-sm rounded-md hover:bg-blue-200 dark:hover:bg-blue-800/50 font-medium">غرب (چاپ)</button>
+                                <a href="/reports/ready-for-delivery/detailed-excel?direction=east" target="_blank" class="text-center bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 px-4 py-2 text-sm rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 font-medium">شرق (اکسل)</a><button onclick="printReport('east')" class="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-4 py-2 text-sm rounded-md hover:bg-blue-200 dark:hover:bg-blue-800/50 font-medium">شرق (چاپ)</button>
+                            </div>
+                        </div>
+                         <div class="p-3 border rounded-lg bg-slate-50 dark:bg-gray-700/50 dark:border-gray-600"><h4 class="font-semibold text-slate-800 dark:text-gray-200 mb-2">لیست تایید ناظر</h4><div class="flex gap-2"><a href="/reports/supervisor-approval/simple/excel" target="_blank" class="w-full text-center bg-green-600 text-white px-4 py-2 text-sm rounded-md hover:bg-green-700">اکسل</a><button onclick="window.open('/reports/supervisor-approval/simple/html', '_blank')" class="w-full bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-700">چاپ</button></div></div>
+                        <div class="p-3 border rounded-lg bg-slate-50 dark:bg-gray-700/50 dark:border-gray-600"><h4 class="font-semibold text-slate-800 dark:text-gray-200 mb-2">چک‌لیست QC گروهی</h4><div class="flex gap-2"><a href="/reports/supervisor-approval/checklist/excel" target="_blank" class="w-full text-center bg-purple-600 text-white px-4 py-2 text-sm rounded-md hover:bg-purple-700">اکسل</a><button onclick="window.open('/reports/supervisor-approval/checklist/html', '_blank')" class="w-full bg-purple-600 text-white px-4 py-2 text-sm rounded-md hover:bg-purple-700">چاپ</button></div></div>
+                        <div class="sm:col-span-2 p-3 border rounded-lg bg-slate-50 dark:bg-gray-700/50 dark:border-gray-600">
+                            <h4 class="font-semibold text-slate-800 dark:text-gray-200 mb-2">گزارش تابلوهای خروج خورده (بازه زمانی)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-end">
+                                <div><label for="exitedStartDateDisplay" class="text-xs text-slate-600 dark:text-gray-400">از تاریخ</label><input type="text" id="exitedStartDateDisplay" class="shamsi-datepicker-display text-sm mt-1" readonly placeholder="انتخاب کنید"></div>
+                                <div><label for="exitedEndDateDisplay" class="text-xs text-slate-600 dark:text-gray-400">تا تاریخ</label><input type="text" id="exitedEndDateDisplay" class="shamsi-datepicker-display text-sm mt-1" readonly placeholder="انتخاب کنید"></div>
+                                <button id="getExitedReportBtn" class="bg-cyan-600 text-white px-4 py-2 text-sm rounded-md hover:bg-cyan-700 font-medium disabled:opacity-50" disabled>دریافت گزارش</button>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+            
+            <!-- Filters -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 dark:bg-gray-800 dark:border-gray-700 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+                    <div class="relative lg:col-span-2"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="text" id="searchInput" placeholder="جستجو (نام, متقاضی, شماره تقاضا, کد...)" class="w-full p-2 pl-10 border border-slate-300 rounded-md dark:bg-gray-700 dark:border-gray-600"></div>
+                    <select id="stepFilter" class="p-2 border border-slate-300 rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="all">همه مراحل</option></select>
+                    <div class="flex flex-col sm:flex-row gap-2 lg:col-span-2">
+                        <button id="showStuckBtn" class="w-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 px-3 py-2 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 text-sm font-semibold flex items-center justify-center gap-2"><i class="fas fa-clock"></i> نمایش پروژه‌های معطل</button>
+                        <button id="clearFilterBtn" title="پاک کردن فیلترها" class="w-full bg-slate-200 text-slate-600 dark:bg-gray-600 dark:text-gray-300 px-3 py-2 rounded-md hover:bg-slate-300 dark:hover:bg-gray-500 flex items-center justify-center gap-2"><i class="fas fa-times"></i> پاک کردن</button>
+                    </div>
+                </div>
+                 <div class="mt-4 pt-4 border-t border-slate-200 dark:border-gray-700">
+                    <button id="bulk-approve-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"><i class="fas fa-check-double"></i> تایید گروهی و انتقال به مرحله "تایید ناظر"</button>
+                    <p class="text-xs text-center text-slate-500 dark:text-gray-400 mt-2">این دکمه تمام پروژه‌هایی که در مرحله "کنترل کیفیت" هستند را به مرحله بعد منتقل می‌کند.</p>
+                </div>
+            </div>
+
+            <div id="loadingPlaceholder" class="text-center text-slate-500 dark:text-gray-400 py-10 text-lg"><i class="fas fa-spinner fa-spin mr-2"></i> درحال بارگذاری پروژه‌ها...</div>
+            <div id="workshopProjectsList" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6"></div>
+            <div id="noResultsMessage" class="hidden text-center text-slate-500 dark:text-gray-400 py-10 text-lg"><i class="fas fa-box-open mr-2"></i> موردی یافت نشد.</div>
+        </div>
+    </main>
+</div>
+
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-50"></div>
+
+<script src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script>
+// Global Helper for Reports
+function printReport(direction) { window.open(`/reports/ready-for-delivery/detailed-html?direction=${direction}`, '_blank'); }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Global State & Constants ---
+    let allProjectsCache = [];
+    let debounceTimer;
+    const STUCK_THRESHOLD_HOURS = 72;
+    const STEP_DEFINITIONS = { "START_ASSEMBLY": "شروع مونتاژ", "END_ASSEMBLY": "پایان مونتاژ", "TEAM_LEAD_APPROVAL": "تایید سرگروه", "TEST": "تست سماک", "QUALITY_CONTROL": "کنترل کیفیت", "SUPERVISOR_APPROVAL": "تأیید ناظر", "EXIT_PANEL": "خروج تابلو" };
+    const ORDERED_STEP_KEYS = ["START_ASSEMBLY", "END_ASSEMBLY", "TEAM_LEAD_APPROVAL", "TEST", "QUALITY_CONTROL", "SUPERVISOR_APPROVAL"];
+    const EXIT_STEP_KEY = "EXIT_PANEL";
+    const PANEL_TYPE_DEFINITIONS = { "FAHAM_WITH_FRAME": "فهام با قاب", "FAHAM_WITHOUT_FRAME": "فهام بدون قاب", "ID2R": "ID2R - کامپوزیتی 1-2 کنتور ریلی", "ID5R": "ID5R - کامپوزیتی 3-5 کنتور ریلی", "ID116": "ID116 - 2 کنتوره تکفاز ریلی دیواری", "ID6_1R": "ID6+1R - 6 کنتور فلزی دیواری", "ID12_1R": "ID12+1R - 12 کنتور فلزی دیواری", "ID18_1R": "ID18+1R - 18 کنتور فلزی دیواری", "ID24_1R": "ID24+1R - 24 کنتور فلزی دیواری", "ID101_1": "ID101.1 - تک کنتور هوایی تکفاز", "ID101_3": "ID101.3 - تک کنتور هوایی سه فاز", "ID102_1": "ID102.1 - تک کنتور هوایی تکفاز (فیوزدار)", "ID102_3": "ID102.3 - تک کنتور هوایی سه فاز (فیوزدار)", "ID104_1": "ID104.1 - تک کنتور زمینی تکفاز", "ID104_3": "ID104.3 - تک کنتور زمینی سه فاز", "ID105": "ID105 - کامپوزیتی زمینی تک کنتوره", "ID107": "ID107 - کامپوزیتی دیواری سه فاز با فیوز", "ID115": "ID115 - تک کنتور دیواری", "ID108": "ID108 - زمینی چند کنتوره یکطرفه", "ID109": "ID109 - زمینی چند کنتوره دوطرفه", "ID110": "ID110 - 2 کنتوره تکفاز هوایی", "ID111": "ID111 - 2 کنتوره تکفاز زمینی", "ID112_STAR": "ID112* - چند کنتوره تکفاز پایه", "ID120": "ID120 - 2 کنتوره سه فاز هوایی", "ID121": "ID121 - 2 کنتوره سه فاز زمینی", "ID122": "ID122 - 2x2 کنتوره سه فاز - جعبه 8 فیوز", "ID123": "ID123 - 2x2 کنتوره سه فاز - جعبه 16 فیوز", "ID124_STAR": "ID124* - چند کنتوره سه فاز پایه", "ID211": "ID211 - دیماندی هوایی 30-150kW", "ID212": "ID212 - دیماندی هوایی 151-249kW", "ID213": "ID213 - دیماندی زمینی یکطرفه", "ID214": "ID214 - دیماندی زمینی دوطرفه", "ID215": "ID215 - دیماندی فلزی زمینی", "ID216": "ID216 - دو دیماندی هوایی", "ID218": "ID218 - چند دیماندی زمینی دوطرفه" };
+    
+    // --- DOM Elements ---
+    const DOM = {
+        workshopProjectsList: document.getElementById('workshopProjectsList'), searchInput: document.getElementById('searchInput'), stepFilter: document.getElementById('stepFilter'), showStuckBtn: document.getElementById('showStuckBtn'), clearFilterBtn: document.getElementById('clearFilterBtn'), loadingPlaceholder: document.getElementById('loadingPlaceholder'), noResultsMessage: document.getElementById('noResultsMessage'), toastContainer: document.getElementById('toastContainer'), barcodeInput: document.getElementById('barcodeInput'), barcodeStatusMessage: document.getElementById('barcodeStatusMessage'), bulkApproveBtn: document.getElementById('bulk-approve-btn'),
+        themeToggle: document.getElementById('theme-toggle'), darkIcon: document.getElementById('theme-toggle-dark-icon'), lightIcon: document.getElementById('theme-toggle-light-icon'), userName: document.getElementById('userName'), userMenuButton: document.getElementById('user-menu-button'), userMenu: document.getElementById('user-menu'), logoutButton: document.getElementById('logoutButton'),
+    };
+
+    // --- API Helper ---
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { ...options.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            if (!(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) { logout(); throw new Error('Unauthorized'); }
+            if (response.status === 204) return;
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`);
+            return data;
+        },
+        get: (url) => api._fetch(url), post: (url, body) => api._fetch(url, { method: 'POST', body: JSON.stringify(body) }), put: (url, body) => api._fetch(url, { method: 'PUT', body: JSON.stringify(body) }), delete: (url) => api._fetch(url, { method: 'DELETE' }),
+    };
+
+    // --- Authentication ---
+    function checkAuth() { if (!localStorage.getItem('token')) window.location.href = '/login'; }
+    async function fetchCurrentUser() { try { const user = await api.get('/auth/me'); DOM.userName.textContent = user.name; return user; } catch (error) { console.error('Failed to fetch user info:', error); } }
+    function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+    
+    // --- UI & Utilities ---
+    const escapeHtml = (unsafe) => unsafe?.toString().replace(/[&<"'>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]) || '';
+    function showToast(message, isError = false, type = 'info') { 
+        const toastId = 'toast-' + Date.now(); 
+        const bgColor = isError ? 'toast-error' : type === 'success' ? 'toast-success' : 'toast-info';
+        const icon = isError ? `<i class="fas fa-exclamation-circle ml-2"></i>` : type === 'success' ? `<i class="fas fa-check-circle ml-2"></i>` : `<i class="fas fa-info-circle ml-2"></i>`;
+        DOM.toastContainer.insertAdjacentHTML('beforeend', `<div id="${toastId}" class="max-w-xs ${bgColor} text-white text-sm rounded-lg shadow-lg p-3 flex items-center transition-all duration-300 transform translate-x-full" role="alert">${icon}<span>${message}</span></div>`); 
+        setTimeout(() => { const t = document.getElementById(toastId); if(t) t.classList.remove('translate-x-full'); }, 100);
+        setTimeout(() => { const t = document.getElementById(toastId); if(t) { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); } }, 4500); 
+    }
+    function setupThemeToggle() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); DOM.lightIcon.classList.remove('hidden'); DOM.darkIcon.classList.add('hidden'); } else { document.documentElement.classList.remove('dark'); }
+        DOM.themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); DOM.darkIcon.classList.toggle('hidden'); DOM.lightIcon.classList.toggle('hidden'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; });
+    }
+    function setupSidebar(userRole, currentPagePath) {
+        const supervisorLinks = document.querySelectorAll('.supervisor-only');
+        if (userRole === 'supervisor') { supervisorLinks.forEach(link => link.style.display = 'block'); }
+        const navLinks = document.querySelectorAll('.nav-link-item');
+        navLinks.forEach(link => {
+            link.classList.remove('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+            link.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            const icon = link.querySelector('i');
+            if (icon) icon.classList.remove('text-blue-600');
+            if (link.getAttribute('href') === currentPagePath) {
+                link.classList.add('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+                if (icon) icon.classList.add('text-blue-600');
+            }
+        });
+    }
+
+    // --- Data Processing & Fetching ---
+    function processProjectData(project) {
+        const completedStepKeys = new Set((project.steps || []).map(s => s.name_key));
+        const stepMap = new Map((project.steps || []).map(s => [s.name_key, new Date(s.timestamp)]));
+        let currentStepKey = null, timeInCurrentStepText = '', isStuck = false;
+        if (completedStepKeys.has(EXIT_STEP_KEY)) { currentStepKey = EXIT_STEP_KEY; } 
+        else {
+            const completedWorkflowSteps = ORDERED_STEP_KEYS.filter(key => completedStepKeys.has(key)).map(key => ({ key, timestamp: stepMap.get(key), index: ORDERED_STEP_KEYS.indexOf(key) })).sort((a, b) => b.index - a.index);
+            if (completedWorkflowSteps.length > 0) {
+                const lastCompletedStep = completedWorkflowSteps[0];
+                currentStepKey = lastCompletedStep.key;
+                const hoursInStep = (new Date() - lastCompletedStep.timestamp) / 36e5;
+                isStuck = hoursInStep >= STUCK_THRESHOLD_HOURS;
+                timeInCurrentStepText = hoursInStep < 24 ? `${Math.floor(hoursInStep)} ساعت` : `${Math.floor(hoursInStep / 24)} روز و ${Math.floor(hoursInStep % 24)} ساعت`;
+            }
+        }
+        return { ...project, completedStepKeys, currentStepKey, timeInCurrentStepText, isStuck };
+    }
+    
+    async function fetchProjects() {
+        DOM.loadingPlaceholder.style.display = 'block'; DOM.workshopProjectsList.innerHTML = '';
+        try {
+            const projects = await api.get('/projects/');
+            allProjectsCache = projects.map(processProjectData);
+            applyFiltersAndRender();
+        } catch (error) { showToast(error.message, true); } 
+        finally { DOM.loadingPlaceholder.style.display = 'none'; }
+    }
+
+    async function updateSingleProject(projectId) {
+        try {
+            const newProjectData = processProjectData(await api.get(`/projects/${projectId}`));
+            const index = allProjectsCache.findIndex(p => p.id === projectId);
+            if (index !== -1) allProjectsCache[index] = newProjectData;
+            else allProjectsCache.unshift(newProjectData);
+            const oldCard = document.getElementById(`project-card-${projectId}`);
+            if (oldCard) {
+                const isDetailsOpen = oldCard.querySelector('details')?.open;
+                const activeTab = oldCard.querySelector('.tab-button.active')?.dataset.tabTarget;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = createProjectCardHtml(newProjectData);
+                const newCard = tempDiv.firstElementChild;
+                if (isDetailsOpen) newCard.querySelector('details').open = true;
+                if (activeTab) {
+                    newCard.querySelectorAll('.tab-button, .tab-content').forEach(el => el.classList.remove('active'));
+                    newCard.querySelector(`[data-tab-target="${activeTab}"]`)?.classList.add('active');
+                    newCard.querySelector(`#${activeTab}`)?.classList.add('active');
+                }
+                oldCard.replaceWith(newCard);
+                addCardEventListeners(newCard);
+                newCard.classList.add('card-highlight');
+                setTimeout(() => newCard.classList.remove('card-highlight'), 2000);
+            } else { applyFiltersAndRender(); }
+        } catch (error) {
+            if (error.message.includes('404')) { document.getElementById(`project-card-${projectId}`)?.remove(); allProjectsCache = allProjectsCache.filter(p => p.id !== projectId); } 
+            else { console.error(`Failed to update project ${projectId}:`, error); showToast('خطا در به‌روزرسانی پروژه.', true); }
+        }
+    }
+
+    // --- Rendering ---
+    function applyFiltersAndRender() { 
+        const searchTerm = DOM.searchInput.value.toLowerCase().trim(); 
+        const step = DOM.stepFilter.value; 
+        const filtered = allProjectsCache.filter(p => {
+            const matchesSearch = !searchTerm || `${p.name} ${p.request_id} ${p.customer_name} ${p.panel_code}`.toLowerCase().includes(searchTerm);
+            const matchesStep = step === 'all' || (step === 'not-started' && p.currentStepKey === null) || (step === 'stuck' && p.isStuck) || (p.currentStepKey === step);
+            return matchesSearch && matchesStep;
+        }).sort((a, b) => (b.isStuck - a.isStuck) || (new Date(b.created_at) - new Date(a.created_at)));
+        renderProjectCards(filtered); 
+    }
+
+    function renderProjectCards(projects) { 
+        DOM.workshopProjectsList.innerHTML = projects.map(p => createProjectCardHtml(p)).join(''); 
+        addCardEventListeners(DOM.workshopProjectsList); 
+        DOM.noResultsMessage.style.display = projects.length === 0 ? 'block' : 'none'; 
+    }
+
+    function createProjectCardHtml(p) {
+        const currentStepName = p.currentStepKey ? STEP_DEFINITIONS[p.currentStepKey] : 'شروع نشده';
+        const isExited = p.completedStepKeys.has(EXIT_STEP_KEY);
+        const statusColor = isExited ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : p.currentStepKey ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-slate-100 text-slate-800 dark:bg-gray-700 dark:text-gray-300';
+        const panelCodeHtml = p.panel_code ? `<span class="text-xs text-slate-500 dark:text-gray-400">| کد تابلو: <span class="font-semibold">${p.panel_code}</span></span>` : '';
+        const panelInfoHtml = p.panel_type_name ? `<p class="text-xs text-slate-500 dark:text-gray-400 mt-1"><i class="fas fa-th-large mr-1 text-slate-400"></i>${p.panel_type_name}</p>` : '';
+        return `<div class="project-card" id="project-card-${p.id}" data-is-stuck="${p.isStuck}"><details class="bg-white rounded-lg shadow-sm border border-slate-200 dark:bg-gray-800 dark:border-gray-700 overflow-hidden"><summary class="p-4 flex items-start gap-4 cursor-pointer"><div class="flex-grow"><h4 class="font-bold text-slate-800 dark:text-gray-200 text-lg">${escapeHtml(p.name)}</h4><p class="text-sm text-slate-600 dark:text-gray-300 mt-1"><i class="fas fa-user mr-1 text-slate-400"></i>${escapeHtml(p.customer_name || 'نامشخص')}</p><p class="text-xs text-slate-500 dark:text-gray-400 mt-1">ش. تقاضا: <span class="font-semibold">${p.request_id || '-'}</span> ${panelCodeHtml}</p>${panelInfoHtml}</div><div class="flex flex-col items-end gap-2 flex-shrink-0"><span class="text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor}">${currentStepName}</span>${p.isStuck ? `<span class="stuck-alert text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 flex items-center gap-1.5"><i class="fas fa-clock"></i> ${p.timeInCurrentStepText} در این مرحله</span>` : ''}</div><div class="accordion-arrow text-slate-500 pt-1"><i class="fas fa-chevron-down"></i></div></summary><div class="border-t border-slate-200 dark:border-gray-700"><div class="p-4"><div class="flex border-b border-slate-200 dark:border-gray-700 mb-4 text-sm -mx-4 px-4"><button class="tab-button active" data-tab-target="assembly-${p.id}">مونتاژ</button><button class="tab-button" data-tab-target="steps-${p.id}">مراحل</button><button class="tab-button" data-tab-target="comments-${p.id}">یادداشت‌ها</button></div><div id="assembly-${p.id}" class="tab-content active">${_getAssemblyDetailsHtml(p)}</div><div id="steps-${p.id}" class="tab-content">${_getStepsHtml(p)}</div><div id="comments-${p.id}" class="tab-content">${_getCommentsHtml(p)}</div></div><div class="flex items-center justify-end gap-2 p-3 bg-slate-50 dark:bg-gray-700/50 border-t border-slate-200 dark:border-gray-700">${_getActionButtonsHtml(p)}</div></div></details></div>`;
+    }
+    function _getStepsHtml(p) { let html = '<ul class="space-y-3 mt-2">'; let prevDone = true; const canStart = p.panel_type_key && p.assembler_1; const isExited = p.completedStepKeys.has(EXIT_STEP_KEY); ORDERED_STEP_KEYS.forEach(key => { const name = STEP_DEFINITIONS[key], isDone = p.completedStepKeys.has(key), canInteract = prevDone && !isDone && canStart && !isExited; html += `<li class="flex items-center justify-between"><label class="flex items-center flex-grow ${!canInteract ? 'cursor-not-allowed text-slate-400 dark:text-gray-500' : 'cursor-pointer'}"><input type="checkbox" data-project-id="${p.id}" data-step-key="${key}" class="ml-3 h-5 w-5 rounded" ${isDone ? 'checked' : ''} ${!canInteract ? 'disabled' : ''}><span>${name}</span></label>${isDone ? `<button class="cancel-step-btn text-red-500 hover:text-red-700 text-sm" data-project-id="${p.id}" data-step-key="${key}"><i class="fas fa-times-circle"></i> لغو</button>` : ''}</li>`; if (!isDone) prevDone = false; }); return html + '</ul>'; }
+    function _getAssemblyDetailsHtml(p) { const isEditable = (p.steps || []).length === 0; const options = Object.entries(PANEL_TYPE_DEFINITIONS).map(([k,v]) => `<option value="${k}" ${p.panel_type_key === k ? 'selected' : ''}>${v}</option>`).join(''); if(isEditable) { return `<div class="space-y-3 text-sm"><div><label class="block font-medium">نوع تابلو</label><select data-project-id="${p.id}" class="panel-type-select mt-1 block w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"><option value="">انتخاب...</option>${options}</select></div><div class="grid grid-cols-2 gap-3"><div><label class="block font-medium">مونتاژکار ۱</label><input type="text" data-project-id="${p.id}" class="assembler1-input mt-1 w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" value="${p.assembler_1 || ''}" placeholder="نام مونتاژکار"></div><div><label class="block font-medium">مونتاژکار ۲</label><input type="text" data-project-id="${p.id}" class="assembler2-input mt-1 w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" value="${p.assembler_2 || ''}" placeholder="اختیاری"></div></div><button class="save-assembly-btn w-full bg-blue-600 text-white py-2 rounded-md mt-2 hover:bg-blue-700" data-project-id="${p.id}">ذخیره اطلاعات مونتاژ</button></div>`; } else { return `<div class="space-y-3 text-sm"><p><strong>نوع تابلو:</strong> ${p.panel_type_name || '-'}</p><p><strong>مونتاژکار ۱:</strong> ${p.assembler_1 || '-'}</p><p><strong>مونتاژکار ۲:</strong> ${p.assembler_2 || '-'}</p></div>`; } }
+    function _getCommentsHtml(p) { const list = (p.comments?.length > 0) ? p.comments.map(c => `<div class="bg-slate-100 dark:bg-gray-700 p-2 rounded-lg mb-2 text-xs"><div class="flex justify-between text-slate-500 dark:text-gray-400 mb-1"><strong>${c.author}</strong><span>${new Date(c.timestamp).toLocaleString('fa-IR')}</span></div><p class="text-slate-800 dark:text-gray-200">${escapeHtml(c.text)}</p></div>`).join('') : '<p class="text-sm text-slate-400 dark:text-gray-500 text-center p-4">یادداشتی نیست.</p>'; return `<div class="max-h-48 overflow-y-auto pr-2">${list}</div><div class="mt-4 pt-4 border-t dark:border-gray-700"><textarea id="comment-input-${p.id}" class="w-full p-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600" rows="2" placeholder="یادداشت جدید..."></textarea><button class="post-comment-btn w-full mt-2 bg-blue-600 text-white py-2 rounded-md text-sm hover:bg-blue-700" data-project-id="${p.id}">ثبت یادداشت</button></div>`; }
+    function _getActionButtonsHtml(p) { return `<button onclick="window.open('/projects/${p.id}/exit-slip', '_blank')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5"><i class="fas fa-receipt"></i><span>برگه خروج</span></button><button onclick="window.open('/projects/${p.id}/qc-checklist', '_blank')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5"><i class="fas fa-tasks"></i><span>چک‌لیست</span></button><a href="/projects/${p.id}/label" target="_blank" class="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5"><i class="fas fa-print"></i><span>برچسب</span></a>`; }
+
+    // --- Event Handlers ---
+    function addCardEventListeners(scope) {
+        scope.querySelectorAll('.tab-button').forEach(b => b.addEventListener('click', e => { const card = e.target.closest('.project-card'); card.querySelectorAll('.tab-button, .tab-content').forEach(el => el.classList.remove('active')); e.target.classList.add('active'); card.querySelector(`#${e.target.dataset.tabTarget}`).classList.add('active'); }));
+        scope.querySelectorAll('.save-assembly-btn').forEach(b => b.addEventListener('click', handleSaveAssembly));
+        scope.querySelectorAll('input[type=checkbox]').forEach(c => c.addEventListener('change', handleStepAction));
+        scope.querySelectorAll('.cancel-step-btn').forEach(b => b.addEventListener('click', handleStepAction));
+        scope.querySelectorAll('.post-comment-btn').forEach(b => b.addEventListener('click', handlePostComment));
+    }
+    async function handleSaveAssembly(e) { const btn = e.target, projectId = btn.dataset.projectId, card = btn.closest('.project-card'); const data = { panel_type_key: card.querySelector('.panel-type-select').value, assembler_1: card.querySelector('.assembler1-input').value.trim(), assembler_2: card.querySelector('.assembler2-input').value.trim() || null }; if(!data.panel_type_key || !data.assembler_1) return showToast('نوع تابلو و مونتاژکار ۱ الزامیست.', true); btn.disabled = true; btn.textContent = '...'; try { await api.put(`/projects/${projectId}/assembly-details/`, data); showToast('اطلاعات مونتاژ ذخیره شد.', false, 'success'); updateSingleProject(projectId); } catch(err) { showToast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'ذخیره اطلاعات مونتاژ'; } }
+    async function handleStepAction(e) { const el = e.target.closest('input, button'), projectId = el.dataset.projectId, stepKey = el.dataset.stepKey, isCancel = el.classList.contains('cancel-step-btn'); const stepName = STEP_DEFINITIONS[stepKey]; if(isCancel && !confirm(`آیا از لغو مرحله "${stepName}" مطمئنید؟`)) return; el.disabled = true; try { const response = isCancel ? await api.delete(`/projects/${projectId}/steps/${encodeURIComponent(stepName)}`) : await api.post(`/projects/${projectId}/steps`, { step: stepKey }); showToast(`مرحله "${stepName}" ${isCancel ? 'لغو شد' : 'ثبت شد'}.`, false, 'success'); updateSingleProject(projectId); } catch(err) { showToast(err.message, true); if(!isCancel) el.checked = false; } finally { el.disabled = false; } }
+    async function handlePostComment(e) { const btn = e.target, projectId = btn.dataset.projectId, textarea = document.getElementById(`comment-input-${projectId}`), text = textarea.value.trim(); if(!text) return showToast('لطفا متن یادداشت را وارد کنید.', true); btn.disabled = true; btn.textContent = '...'; try { await api.post(`/projects/${projectId}/comments`, { text }); textarea.value = ''; showToast('یادداشت ثبت شد.', false, 'success'); updateSingleProject(projectId); } catch(err) { showToast(err.message, true); } finally { btn.disabled = false; btn.textContent = 'ثبت یادداشت'; } }
+    
+    // --- Components Setup ---
+    function setupBarcodeScanner() {
+        let buffer = '', timer;
+        DOM.barcodeInput.addEventListener('input', e => { clearTimeout(timer); buffer = e.target.value; timer = setTimeout(() => { if(buffer.length > 3) handleBarcodeAction(buffer); }, 100); });
+        DOM.barcodeInput.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.value) handleBarcodeAction(e.target.value); });
+    }
+    async function handleBarcodeAction(barcode) {
+        DOM.barcodeInput.value = ''; DOM.barcodeStatusMessage.textContent = 'در حال پردازش...'; DOM.barcodeStatusMessage.className = 'mt-2 text-sm min-h-[1.25rem] text-center font-medium text-blue-600';
+        const project = allProjectsCache.find(p => p.request_id === barcode);
+        try {
+            if(project && project.completedStepKeys.has('EXIT_PANEL')) {
+                if(confirm(`پروژه "${project.name}" قبلا خارج شده. آیا برگردانده شود؟`)) {
+                    await api.delete(`/projects/${project.id}/steps/${encodeURIComponent(STEP_DEFINITIONS.EXIT_PANEL)}`);
+                    DOM.barcodeStatusMessage.textContent = `پروژه ${barcode} برگشت خورد.`; DOM.barcodeStatusMessage.className += ' text-green-600';
+                    updateSingleProject(project.id);
+                } else { DOM.barcodeStatusMessage.textContent = 'عملیات لغو شد.'; DOM.barcodeStatusMessage.className += ' text-gray-600'; }
+            } else {
+                const data = await api.post('/projects/exit-by-barcode/', { barcode_data: barcode });
+                DOM.barcodeStatusMessage.textContent = `خروج برای ${barcode} ثبت شد.`; DOM.barcodeStatusMessage.className += ' text-green-600';
+                const projectToUpdate = allProjectsCache.find(p => p.request_id === barcode);
+                if (projectToUpdate) updateSingleProject(projectToUpdate.id);
+            }
+        } catch(err) { DOM.barcodeStatusMessage.textContent = `خطا: ${err.message}`; DOM.barcodeStatusMessage.className += ' text-red-600'; }
+    }
+    async function handleBulkApprove() {
+        const projectsToApprove = allProjectsCache.filter(p => p.currentStepKey === 'QUALITY_CONTROL');
+        if (projectsToApprove.length === 0) return showToast('پروژه‌ای در مرحله "کنترل کیفیت" نیست.', false, 'info');
+        if (!confirm(`آیا ${projectsToApprove.length} پروژه به مرحله "تایید ناظر" منتقل شود؟`)) return;
+        const btn = DOM.bulkApproveBtn; btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> ...`;
+        const results = await Promise.allSettled(projectsToApprove.map(p => api.post(`/projects/${p.id}/steps`, { step: 'SUPERVISOR_APPROVAL' })));
+        const successCount = results.filter(r => r.status === 'fulfilled').length;
+        if (successCount > 0) showToast(`${successCount} پروژه با موفقیت تایید شد.`, false, 'success');
+        if (successCount < results.length) showToast(`${results.length - successCount} پروژه با خطا مواجه شد.`, true);
+        btn.disabled = false; btn.innerHTML = `<i class="fas fa-check-double mr-2"></i> تایید گروهی و انتقال به مرحله "تایید ناظر"`;
+        await fetchProjects();
+    }
+    function setupExitedReport() { let s, e; const btn = document.getElementById('getExitedReportBtn'); const check = () => { btn.disabled = !(s && e && e >= s); }; $("#exitedStartDateDisplay").persianDatepicker({ format: 'YYYY-MM-DD', autoClose: true, onSelect: (u) => { s = u; $("#exitedEndDateDisplay").pDatepicker('setMinDate', u); check(); } }); $("#exitedEndDateDisplay").persianDatepicker({ format: 'YYYY-MM-DD', autoClose: true, onSelect: (u) => { e = u; check(); } }); btn.addEventListener('click', () => { if(btn.disabled) return; const sd = new Date(s).toISOString().split('T')[0], ed = new Date(e).toISOString().split('T')[0]; window.open(`/reports/exited-panels/simple-excel-range?start_date=${sd}&end_date=${ed}`, '_blank'); }); }
+    function connectWebSocket() { const ws = new WebSocket(`${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws?token=${localStorage.getItem('token')}`); ws.onmessage = (e) => { const msg = JSON.parse(e.data); if (msg.type === 'update') { msg.project_id ? updateSingleProject(msg.project_id) : fetchProjects(); } else if (msg.type === 'error') { showToast(msg.message, true); } }; ws.onclose = () => setTimeout(connectWebSocket, 5000); ws.onerror = (err) => console.error('WS err:', err); }
+    
+    // --- Initialization ---
+    async function init() {
+        checkAuth();
+        const currentUser = await fetchCurrentUser();
+        setupThemeToggle();
+        
+        if (currentUser) {
+            setupSidebar(currentUser.role, window.location.pathname);
+        }
+        
+        DOM.stepFilter.innerHTML = '<option value="all">همه مراحل</option><option value="not-started">شروع نشده</option><option value="stuck">پروژه‌های معطل</option>';
+        ORDERED_STEP_KEYS.forEach(key => DOM.stepFilter.add(new Option(STEP_DEFINITIONS[key], key)));
+        const debounceFilter = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(applyFiltersAndRender, 300); };
+        DOM.searchInput.addEventListener('input', debounceFilter);
+        DOM.stepFilter.addEventListener('change', applyFiltersAndRender);
+        DOM.showStuckBtn.addEventListener('click', () => { renderProjectCards(allProjectsCache.filter(p => p.isStuck)); });
+        DOM.clearFilterBtn.addEventListener('click', () => { DOM.searchInput.value = ''; DOM.stepFilter.value = 'all'; applyFiltersAndRender(); });
+        DOM.bulkApproveBtn.addEventListener('click', handleBulkApprove);
+        DOM.userMenuButton.addEventListener('click', () => DOM.userMenu.classList.toggle('hidden'));
+        DOM.logoutButton.addEventListener('click', logout);
+        setupExitedReport(); setupBarcodeScanner();
+        await fetchProjects();
+        connectWebSocket();
+    }
+    
+    init();
+});
+</script>
+</body>
+</html>

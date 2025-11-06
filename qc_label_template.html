@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>برچسب کنترل کیفیت - {{ serial_number }}</title>
+    <style>
+        @font-face {
+            font-family: 'Vazirmatn-Bold';
+            src: url('/static/Vazirmatn-Bold.ttf') format('truetype');
+        }
+        @page {
+            size: 100mm 50mm;
+            margin: 0;
+        }
+        body {
+            font-family: 'Vazirmatn-Bold', sans-serif;
+            width: 100mm;
+            height: 50mm;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-image: url('/static/qc_label_bg.png'); /* اطمینان از وجود این فایل */
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: #2d3748;
+        }
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+        .header, .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2mm 5mm;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 0 5mm;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .company-title { font-size: 11pt; font-weight: bold; }
+        .company-logo { width: 15mm; height: 15mm; object-fit: contain; }
+        .serial-container { font-size: 12pt; font-weight: bold; }
+        .serial-container span {
+            unicode-bidi: bidi-override;
+            direction: ltr;
+            display: inline-block;
+        }
+        .qc-logo { width: 22mm; height: 10mm; align-self: flex-end; margin-bottom: 2mm; object-fit: contain; }
+        .qr-code { width: 18mm; height: 18mm; align-self: flex-end; }
+        .approved-text { font-size: 16pt; font-weight: bold; flex-grow: 1; text-align: center; padding-bottom: 3mm; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="company-title">شرکت فرداد سازه گلشن</span>
+        <img src="/static/fardad_logo_new.png" alt="Company Logo" class="company-logo"> <!-- اطمینان از وجود این فایل -->
+    </div>
+
+    <div class="main-content">
+        <div class="serial-container">
+            شماره سریال: <span>{{ serial_number }}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <img src="/static/qc_logo_new.png" alt="QC Logo" class="qc-logo"> <!-- اطمینان از وجود این فایل -->
+        <span class="approved-text">تایید شد</span>
+        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code">
+    </div>
+    
+    <!-- اسکریپت چاپ خودکار -->
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

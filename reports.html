@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش‌های تحلیلی (KPI)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #f7f8fc; }
+        html.dark body { background-color: #0d1117; color: #c9d1d9; }
+        .card { background-color: white; }
+        html.dark .card { background-color: #161b22; border: 1px solid #30363d; }
+        .chart-container { position: relative; height: 350px; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { 'vazir': ['Vazirmatn', 'sans-serif'] } } }
+        }
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="text-gray-700 dark:text-gray-300">
+
+<div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+	<!-- Sidebar (نسخه نهایی و هوشمند) -->
+	<aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+		<div class="flex flex-col h-full">
+			<div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+				<i class="fas fa-cogs text-blue-600 text-2xl"></i>
+				<span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+			</div>
+			<nav class="flex-1 px-4 py-6 space-y-2 text-sm">
+				<!-- ========= لینک‌های عمومی برای همه کاربران (کارمند و مدیر) ========= -->
+				<a href="/assembler-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-users-cog fa-fw ml-3"></i>
+					<span>آمار و گزارش کار</span>
+				</a>
+				<a href="/employee-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-user fa-fw ml-3"></i>
+					<span>گزارش‌های من</span>
+				</a>
+				<!-- ========= لینک‌های مخصوص مدیر (Supervisor) ========= -->
+				<div class="supervisor-only" style="display: none;">
+					<hr class="my-3 border-gray-200 dark:border-gray-700">
+					<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">پنل مدیریت</h6>
+					<a href="/dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-tachometer-alt fa-fw ml-3"></i>
+						<span>داشبورد اصلی</span>
+					</a>
+					<a href="/manager" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-user-shield fa-fw ml-3"></i>
+						<span>پنل مدیر</span>
+					</a>
+					<a href="/workshop" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-hard-hat fa-fw ml-3"></i>
+						<span>پنل کارگاه</span>
+					</a>
+					<a href="/reports" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-chart-line fa-fw ml-3"></i>
+						<span>گزارش‌های KPI</span>
+					</a>
+					<div class="pt-4 mt-4 border-t dark:border-gray-700">
+						<a href="/personnel-management" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-users fa-fw ml-3"></i>
+							<span>مدیریت پرسنل</span>
+						</a>
+						<a href="/supervisor-dashboard" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-user-check fa-fw ml-3"></i>
+							<span>داشبورد ناظر</span>
+						</a>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</aside>
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+             <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3"><i class="fas fa-chart-line text-blue-600"></i><span>گزارش‌های تحلیلی (KPI)</span></h1>
+             <div class="flex items-center gap-4">
+                 <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"><i class="fas fa-moon" id="theme-toggle-dark-icon"></i><i class="fas fa-sun hidden" id="theme-toggle-light-icon"></i></button>
+                 <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                 <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2"><span id="userName" class="font-semibold text-sm"></span><i class="fas fa-chevron-down text-xs"></i></button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20"><a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب</a></div>
+                 </div>
+             </div>
+        </header>
+
+        <div id="loader" class="flex-1 flex items-center justify-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>
+        <div id="content" class="flex-1 overflow-y-auto p-6 hidden">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+                <div class="card p-5 rounded-xl shadow-sm"><div class="text-sm text-gray-500 dark:text-gray-400">کل پروژه‌ها</div><div id="kpi-total_projects" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+                <div class="card p-5 rounded-xl shadow-sm"><div class="text-sm text-gray-500 dark:text-gray-400">تکمیل شده (این ماه)</div><div id="kpi-completed_this_month" class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">0</div></div>
+                <div class="card p-5 rounded-xl shadow-sm"><div class="text-sm text-gray-500 dark:text-gray-400">میانگین زمان تکمیل (روز)</div><div id="kpi-avg_completion_time_days" class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">0</div></div>
+                <div class="card p-5 rounded-xl shadow-sm"><div class="text-sm text-gray-500 dark:text-gray-400">مرحله گلوگاه (Bottleneck)</div><div id="kpi-bottleneck_step" class="text-lg font-bold text-red-600 dark:text-red-400 mt-2">-</div></div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card p-5 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800">میانگین زمان صرف شده در هر مرحله (ساعت)</h3>
+                    <div class="chart-container"><canvas id="stepDurationChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- API Helper & Auth ---
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) { logout(); throw new Error('Unauthorized'); }
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`);
+            return data;
+        },
+        get: (url) => api._fetch(url)
+    };
+    
+    function checkAuth() { if (!localStorage.getItem('token')) window.location.href = '/login'; }
+    async function fetchCurrentUser() { try { const user = await api.get('/auth/me'); document.getElementById('userName').textContent = user.name; return user; } catch (e) { console.error(e); } }
+    function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+
+    // --- UI & Utilities ---
+    function setupThemeToggle() {
+        const themeToggleBtn = document.getElementById('theme-toggle'), darkIcon = document.getElementById('theme-toggle-dark-icon'), lightIcon = document.getElementById('theme-toggle-light-icon');
+        if (themeToggleBtn) {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); lightIcon.classList.remove('hidden'); darkIcon.classList.add('hidden'); }
+            themeToggleBtn.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; fetchAndRenderData(); });
+        }
+    }
+
+    // --- START OF NEW FUNCTION ---
+    function setupSidebar(userRole, currentPagePath) {
+        const supervisorLinks = document.querySelectorAll('.supervisor-only');
+        if (userRole === 'supervisor') {
+            supervisorLinks.forEach(link => {
+                link.style.display = 'block';
+            });
+        }
+        const navLinks = document.querySelectorAll('.nav-link-item');
+        navLinks.forEach(link => {
+            link.classList.remove('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+            link.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            const icon = link.querySelector('i');
+            if (icon) icon.classList.remove('text-blue-600');
+            if (link.getAttribute('href') === currentPagePath) {
+                link.classList.add('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+                if (icon) icon.classList.add('text-blue-600');
+            }
+        });
+    }
+    // --- END OF NEW FUNCTION ---
+
+    // --- Charting & Data ---
+    const STEP_NAMES = { "START_ASSEMBLY": "شروع مونتاژ", "END_ASSEMBLY": "پایان مونتاژ", "TEAM_LEAD_APPROVAL": "تایید سرگروه", "TEST": "تست سماک", "QUALITY_CONTROL": "کنترل کیفیت", "SUPERVISOR_APPROVAL": "تأیید ناظر" };
+    let stepDurationChart;
+
+    async function fetchAndRenderData() {
+        document.getElementById('loader').style.display = 'flex';
+        document.getElementById('content').classList.add('hidden');
+        try {
+            const data = await api.get('/reports/kpi-summary');
+            document.getElementById('kpi-total_projects').textContent = data.total_projects || 0;
+            document.getElementById('kpi-completed_this_month').textContent = data.completed_this_month || 0;
+            document.getElementById('kpi-avg_completion_time_days').textContent = data.avg_completion_time_days ? data.avg_completion_time_days.toFixed(1) : 'N/A';
+            document.getElementById('kpi-bottleneck_step').textContent = data.bottleneck_step || '-';
+            const labels = Object.keys(data.step_durations).map(key => STEP_NAMES[key] || key);
+            const chartData = Object.values(data.step_durations);
+            renderStepDurationChart(labels, chartData);
+        } catch (error) {
+            console.error('Error fetching KPI data:', error);
+            document.getElementById('content').innerHTML = `<div class="text-center text-red-500 p-8 card">Failed to load data. Please try again.</div>`;
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('content').classList.remove('hidden');
+        }
+    }
+
+    function renderStepDurationChart(labels, data) {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const textColor = isDarkMode ? '#c9d1d9' : '#334155';
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const ctx = document.getElementById('stepDurationChart').getContext('2d');
+        if (stepDurationChart) stepDurationChart.destroy();
+        stepDurationChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'میانگین زمان (ساعت)',
+                    data: data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, title: { display: true, text: 'زمان (ساعت)', color: textColor }, ticks: { color: textColor }, grid: { color: gridColor } },
+                    y: { ticks: { color: textColor, font: { family: 'Vazirmatn' } }, grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { titleFont: { family: 'Vazirmatn' }, bodyFont: { family: 'Vazirmatn' } }
+                }
+            }
+        });
+    }
+
+    // --- Initialization ---
+    async function init() {
+        checkAuth();
+        const currentUser = await fetchCurrentUser();
+        setupThemeToggle();
+
+        // --- ADDED CODE ---
+        if (currentUser) {
+            setupSidebar(currentUser.role, window.location.pathname);
+        }
+        // --- END OF ADDED CODE ---
+
+        document.getElementById('user-menu-button').addEventListener('click', () => document.getElementById('user-menu').classList.toggle('hidden'));
+        document.getElementById('logoutButton').addEventListener('click', logout);
+        fetchAndRenderData();
+    }
+
+    init();
+});
+</script>
+</body>
+</html>

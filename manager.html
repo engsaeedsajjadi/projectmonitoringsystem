@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت پروژه‌ها</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf') format('truetype'); }
+        body { font-family: "Vazirmatn", "Segoe UI", sans-serif; }
+        .form-section { background-color: #fff; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); }
+        .project-item { transition: box-shadow 0.2s ease-in-out; }
+        .project-item:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15)!important; }
+        .steps-list .step-timestamp { font-size: 0.8em; color: #6c757d; margin-right: 8px; }
+        .comment-item { border-bottom: 1px solid #e9ecef; }
+        .comment-item:last-child { border-bottom: none; }
+        .accordion-button:not(.collapsed) { background-color: #e7f1ff; color: #0c63e4; }
+        .accordion-button:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+        .validation-result-placeholder .alert { font-size: 0.9em; margin-top: 10px; }
+        .datepicker-plot-area { font-family: "Vazirmatn", sans-serif !important; }
+        .datepicker-plot-area .datepicker-navigator .pwt-btn-next,
+        .datepicker-plot-area .datepicker-navigator .pwt-btn-prev { transform: scaleX(-1); }
+
+        /* === START: Sidebar Styles (New styles for Bootstrap version) === */
+        .custom-sidebar {
+            background-color: #ffffff;
+            border-left: 1px solid #dee2e6;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .sidebar-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .sidebar-header .brand-text {
+            color: #212529;
+        }
+        .custom-sidebar .nav-link-item {
+            color: #495057;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .custom-sidebar .nav-link-item:hover {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .custom-sidebar .nav-link-item.active {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            font-weight: 600;
+        }
+        .custom-sidebar .nav-link-item .fa-fw {
+            width: 1.25em;
+            text-align: center;
+        }
+        .custom-sidebar .nav-link-item.active .fa-fw {
+            color: #0d6efd;
+        }
+        /* === END: Sidebar Styles === */
+
+        /* Toast Styles */
+        .toast-container { z-index: 1100; }
+        .toast-success { background-color: #198754 !important; }
+        .toast-error { background-color: #dc3545 !important; }
+        .toast-info { background-color: #0dcaf0 !important; }
+        .toast-warning { background-color: #ffc107 !important; color: #000 !important; }
+    </style>
+</head>
+<body class="p-0">
+<div class="d-flex" style="min-height: 100vh;">
+
+    <!-- === START: Sidebar (نسخه اصلاح شده شبیه به داشبورد اصلی) === -->
+    <aside class="d-none d-lg-flex flex-column flex-shrink-0" style="width: 256px;">
+        <div class="custom-sidebar d-flex flex-column h-100">
+            <div class="sidebar-header d-flex align-items-center justify-content-center" style="height: 4rem;">
+                <i class="fas fa-cogs text-primary fs-4"></i>
+                <span class="ms-3 fs-5 fw-bold brand-text">سیستم مانیتورینگ</span>
+            </div>
+            <nav class="flex-grow-1 p-3">
+                <!-- ========= لینک‌های عمومی برای همه کاربران (کارمند و مدیر) ========= -->
+                <a href="/assembler-dashboard" class="nav-link-item d-flex align-items-center text-decoration-none">
+                    <i class="fas fa-users-cog fa-fw ms-3"></i>
+                    <span>آمار و گزارش کار</span>
+                </a>
+                <a href="/employee-dashboard" class="nav-link-item d-flex align-items-center text-decoration-none">
+                    <i class="fas fa-user fa-fw ms-3"></i>
+                    <span>گزارش‌های من</span>
+                </a>
+                <!-- ========= لینک‌های مخصوص مدیر (Supervisor) ========= -->
+                <div class="supervisor-only" style="display: none;">
+                    <hr class="my-3">
+                    <h6 class="px-3 mb-2 small text-muted text-uppercase">پنل مدیریت</h6>
+                    <a href="/dashboard" class="nav-link-item d-flex align-items-center text-decoration-none">
+                        <i class="fas fa-tachometer-alt fa-fw ms-3"></i>
+                        <span>داشبورد اصلی</span>
+                    </a>
+                    <a href="/manager" class="nav-link-item d-flex align-items-center text-decoration-none">
+                        <i class="fas fa-user-shield fa-fw ms-3"></i>
+                        <span>پنل مدیر</span>
+                    </a>
+                    <a href="/workshop" class="nav-link-item d-flex align-items-center text-decoration-none">
+                        <i class="fas fa-hard-hat fa-fw ms-3"></i>
+                        <span>پنل کارگاه</span>
+                    </a>
+                    <a href="/reports" class="nav-link-item d-flex align-items-center text-decoration-none">
+                        <i class="fas fa-chart-line fa-fw ms-3"></i>
+                        <span>گزارش‌های KPI</span>
+                    </a>
+                    <div class="pt-3 mt-3 border-top">
+                        <a href="/personnel-management" class="nav-link-item d-flex align-items-center mt-2 text-decoration-none">
+                            <i class="fas fa-users fa-fw ms-3"></i>
+                            <span>مدیریت پرسنل</span>
+                        </a>
+                        <a href="/supervisor-dashboard" class="nav-link-item d-flex align-items-center mt-2 text-decoration-none">
+                            <i class="fas fa-user-check fa-fw ms-3"></i>
+                            <span>داشبورد ناظر</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </aside>
+    <!-- === END: Sidebar === -->
+
+    <main class="flex-grow-1 p-3 p-md-4" style="background-color: #f8f9fa;">
+        <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <h1 class="h3 mb-0 text-primary">پنل مدیریت پروژه‌ها</h1>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user me-2"></i>
+                        <span id="userName"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                        <li><a class="dropdown-item text-danger" href="#" id="logoutButton"><i class="fas fa-sign-out-alt me-2"></i>خروج</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        
+        <ul class="nav nav-pills mb-3" id="managerTabs" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" id="list-projects-tab" data-bs-toggle="pill" data-bs-target="#list-projects-content" type="button"><i class="fas fa-list-alt me-2"></i>لیست پروژه‌ها</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="add-project-tab" data-bs-toggle="pill" data-bs-target="#add-project-content" type="button"><i class="fas fa-plus-circle me-2"></i>افزودن و گزارش‌گیری</button></li>
+        </ul>
+
+        <div class="tab-content" id="managerTabsContent">
+            <!-- Project List Tab -->
+            <div class="tab-pane fade show active" id="list-projects-content" role="tabpanel">
+                <div class="card form-section">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center mb-3">
+                            <div class="col-md-9"><input type="text" id="searchInputManager" class="form-control" placeholder="جستجوی آنی در نام، شماره تقاضا، مشتری، کد تابلو..."></div>
+                            <div class="col-md-3 text-md-end"><button id="recalculateBtn" class="btn btn-sm btn-info w-100"><i class="fas fa-cogs me-2"></i>محاسبه مجدد کد تابلوها</button></div>
+                        </div>
+                        <div id="loadingIndicator" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">...</span></div></div>
+                        <ul id="projectsList" class="list-unstyled"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload & Report Tab -->
+            <div class="tab-pane fade" id="add-project-content" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="card form-section h-100"><div class="card-header bg-light"><h3 class="h5 mb-0"><i class="fas fa-file-invoice me-2 text-primary"></i>بارگذاری اکسل تفصیلی</h3></div><div class="card-body"><form id="detailedExcelUploadForm"><div class="input-group"><input type="file" name="files" accept=".xlsx, .xls" class="form-control" required multiple><button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>بارگذاری</button></div><div class="form-text">می‌توانید چند فایل را به صورت همزمان انتخاب کنید.</div></form></div></div>
+                    </div>
+                    <div class="col-lg-6 mb-4">
+                        <div class="card form-section h-100"><div class="card-header bg-light"><h3 class="h5 mb-0"><i class="fas fa-file-excel me-2 text-success"></i>بارگذاری اکسل قدیمی</h3></div><div class="card-body"><form id="excelUploadForm"><div class="input-group"><input type="file" name="file" accept=".xlsx, .xls" class="form-control" required><button type="submit" class="btn btn-success"><i class="fas fa-upload me-1"></i>بارگذاری</button></div></form></div></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card form-section"><div class="card-header bg-light"><h3 class="h5 mb-0"><i class="fas fa-chart-bar me-2 text-info"></i>گزارش تجمعی خرید</h3></div><div class="card-body"><div class="row g-3 align-items-end"><div class="col-md-4"><label for="procureStartDate" class="form-label">از تاریخ</label><input type="text" id="procureStartDate" class="form-control text-center" readonly></div><div class="col-md-4"><label for="procureEndDate" class="form-label">تا تاریخ</label><input type="text" id="procureEndDate" class="form-control text-center" readonly></div><div class="col-md-4"><button id="getProcurementReportBtn" class="btn btn-info w-100" disabled><i class="fas fa-download me-2"></i>دریافت گزارش خرید</button></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Global State & Constants ---
+    const STEP_DEFINITIONS_MANAGER = { "START_ASSEMBLY": "شروع مونتاژ", "END_ASSEMBLY": "پایان مونتاژ", "TEAM_LEAD_APPROVAL": "تأیید سرگروه", "TEST": "تست سماک", "QUALITY_CONTROL": "کنترل کیفیت", "SUPERVISOR_APPROVAL": "تأیید ناظر", "EXIT_PANEL": "خروج تابلو" };
+    const ORDERED_STEP_KEYS_MANAGER = Object.keys(STEP_DEFINITIONS_MANAGER);
+    let allProjectsCache = [];
+    let searchDebounceTimer;
+
+    // --- DOM Elements ---
+    const DOMElements = {
+        projectsUl: document.getElementById('projectsList'), loadingIndicator: document.getElementById("loadingIndicator"), toastContainer: document.querySelector(".toast-container"), searchInputManager: document.getElementById("searchInputManager"),
+        userName: document.getElementById('userName'), logoutButton: document.getElementById('logoutButton'),
+        excelUploadForm: document.getElementById('excelUploadForm'), detailedExcelUploadForm: document.getElementById('detailedExcelUploadForm'), recalculateBtn: document.getElementById("recalculateBtn"), getProcurementReportBtn: document.getElementById('getProcurementReportBtn'),
+        procureStartDate: $("#procureStartDate"), procureEndDate: $("#procureEndDate"),
+    };
+    
+    // --- API Helper with Authentication ---
+    const api = {
+        _getHeaders: (isFormData = false) => { const token = localStorage.getItem('token'); const headers = {}; if (token) headers['Authorization'] = `Bearer ${token}`; if (!isFormData) headers['Content-Type'] = 'application/json'; return headers; },
+        _handleResponse: async (response) => { if (response.status === 401 || response.status === 403) { logout(); throw new Error('Unauthorized'); } if (response.status === 204) return; const data = await response.json(); if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`); return data; },
+        get: async (endpoint) => fetch(endpoint, { headers: api._getHeaders() }).then(api._handleResponse),
+        post: async (endpoint, body) => fetch(endpoint, { method: 'POST', headers: api._getHeaders(), body: JSON.stringify(body) }).then(api._handleResponse),
+        postForm: async (endpoint, formData) => fetch(endpoint, { method: 'POST', headers: api._getHeaders(true), body: formData }).then(api._handleResponse),
+        delete: async (endpoint) => fetch(endpoint, { method: 'DELETE', headers: api._getHeaders() }).then(api._handleResponse),
+    };
+
+    // --- Authentication ---
+    function checkAuth() { if (!localStorage.getItem('token')) window.location.href = '/login'; }
+    async function fetchCurrentUser() { try { const user = await api.get('/auth/me'); DOMElements.userName.textContent = user.name; return user; } catch (error) { console.error('Failed to fetch user info:', error); return null; } }
+    function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+
+    // --- UI & Utility Functions ---
+    const escapeHtml = (unsafe) => unsafe?.toString().replace(/[&<"'>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]) || '';
+    const formatJalali = (dateStr) => new persianDate(new Date(dateStr)).format('YYYY/MM/DD');
+    const formatJalaliDateTime = (dateStr) => new persianDate(new Date(dateStr)).format('YYYY/MM/DD - HH:mm');
+    function showToast(message, type = 'success') {
+        const toastTypeClasses = { success: 'toast-success', error: 'toast-error', info: 'toast-info', warning: 'toast-warning' };
+        const toastHtml = `<div class="toast align-items-center text-white ${toastTypeClasses[type]} border-0" role="alert"><div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+        const toastElement = document.createElement('div'); toastElement.innerHTML = toastHtml; DOMElements.toastContainer.appendChild(toastElement.firstChild);
+        const toast = new bootstrap.Toast(DOMElements.toastContainer.lastChild, { delay: 5000 });
+        toast.show();
+    }
+    const setLoading = (isLoading) => { DOMElements.loadingIndicator.style.display = isLoading ? 'flex' : 'none'; if (isLoading) DOMElements.projectsUl.innerHTML = ''; };
+
+    // --- Sidebar Logic (Updated) ---
+    function setupSidebar(userRole, currentPagePath) {
+        const supervisorLinks = document.querySelectorAll('.supervisor-only');
+        if (userRole === 'supervisor') {
+            supervisorLinks.forEach(link => {
+                link.style.display = 'block';
+            });
+        }
+        document.querySelectorAll('.nav-link-item').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPagePath) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // --- Rendering Logic ---
+    function createProjectCardHTML(p) {
+        const completedStepKeys = new Set((p.steps || []).map(s => s.name_key));
+        const stepsHtml = ORDERED_STEP_KEYS_MANAGER.map(key => { const stepObj = p.steps.find(s => s.name_key === key); const isDone = !!stepObj; return `<li class="mb-1"><i class="fas ${isDone ? 'fa-check-circle text-success' : 'fa-times-circle text-muted'} fa-fw me-2"></i>${stepObj?.name || STEP_DEFINITIONS_MANAGER[key]}${isDone ? `<span class="step-timestamp">(${formatJalali(stepObj.timestamp)})</span>` : ''}</li>`; }).join('');
+        const commentsHtml = (p.comments?.length > 0) ? p.comments.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map(c => `<div class="comment-item p-2"><div class="d-flex justify-content-between small text-muted"><strong>${c.author || 'اپراتور'}</strong><span>${formatJalaliDateTime(c.timestamp)}</span></div><p class="mb-0 small">${escapeHtml(c.text)}</p></div>`).join('') : '<div class="p-2 text-muted small">یادداشتی ثبت نشده است.</div>';
+        const equipmentHtml = (p.equipment?.length > 0) ? `<ul class="list-group list-group-flush small">${p.equipment.map(eq => `<li class="list-group-item d-flex justify-content-between align-items-center">${escapeHtml(eq.item_name)}<span class="badge bg-primary rounded-pill">${eq.quantity}</span></li>`).join('')}</ul>` : '<div class="p-2 text-muted small">لیست تجهیزات خالی است.</div>';
+        return `<div class="card-header bg-white d-flex justify-content-between align-items-center"><h4 class="h6 mb-0 text-primary fw-bold">${escapeHtml(p.name)}</h4><button class="btn btn-sm btn-outline-danger delete-project-btn" data-project-id="${p.id}" title="حذف پروژه"><i class="fas fa-trash-alt"></i></button></div><div class="card-body"><div class="row"><div class="col-md-7"><p class="mb-1"><strong>شماره تقاضا:</strong> ${p.request_id || '-'}</p><p class="mb-1"><strong>مشتری:</strong> ${escapeHtml(p.customer_name || '-')}</p><p class="mb-2"><strong>تاریخ ایجاد:</strong> ${formatJalali(p.created_at)}</p><hr class="my-2"><p class="mb-1"><strong>نوع تابلو:</strong> ${p.panel_type_name || 'تعیین نشده'}</p><p class="mb-1"><strong>کد تابلو:</strong> <span class="badge bg-info text-dark">${p.panel_code || '-'}</span></p><p class="mb-1"><strong>مونتاژکار ۱:</strong> ${escapeHtml(p.assembler_1 || '-')}</p><p class="mb-0"><strong>مونتاژکار ۲:</strong> ${escapeHtml(p.assembler_2 || '-')}</p><div class="validation-result-placeholder mt-3" id="validation-result-${p.id}"></div></div><div class="col-md-5 mt-3 mt-md-0 border-end-md"><h6 class="fw-semibold">مراحل انجام شده:</h6><ul class="list-unstyled mb-0 steps-list">${stepsHtml}</ul></div></div><div class="accordion accordion-flush mt-3" id="accordion-project-${p.id}"><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEquipment-${p.id}">لیست تجهیزات</button></h2><div id="collapseEquipment-${p.id}" class="accordion-collapse collapse" data-bs-parent="#accordion-project-${p.id}"><div class="accordion-body p-0">${equipmentHtml}</div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComments-${p.id}">یادداشت‌ها <span class="badge bg-secondary ms-2">${p.comments.length}</span></button></h2><div id="collapseComments-${p.id}" class="accordion-collapse collapse" data-bs-parent="#accordion-project-${p.id}"><div class="accordion-body p-0">${commentsHtml}</div></div></div><div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddComment-${p.id}">افزودن یادداشت</button></h2><div id="collapseAddComment-${p.id}" class="accordion-collapse collapse" data-bs-parent="#accordion-project-${p.id}"><div class="accordion-body"><div class="input-group"><input type="text" class="form-control form-control-sm comment-input" placeholder="متن یادداشت..."><button class="btn btn-sm btn-outline-primary add-comment-btn" data-project-id="${p.id}">ثبت</button></div></div></div></div></div></div><div class="card-footer bg-light d-flex justify-content-between align-items-center flex-wrap gap-2"><div><button class="btn btn-sm btn-outline-warning check-equipment-btn" data-project-id="${p.id}" title="بررسی مغایرت کالا"><i class="fas fa-dolly me-1"></i>کالا</button><button class="btn btn-sm btn-outline-info check-branch-btn" data-project-id="${p.id}" title="بررسی مغایرت انشعاب"><i class="fas fa-bolt me-1"></i>انشعاب</button></div><div class="btn-group btn-group-sm"><a href="/projects/${p.id}/label" target="_blank" class="btn btn-secondary" title="چاپ برچسب شناسایی"><i class="fas fa-print"></i></a><a href="/projects/${p.id}/qc-label" target="_blank" class="btn btn-secondary" title="چاپ برچسب QC"><i class="fas fa-qrcode"></i></a><a href="/projects/${p.id}/qc-checklist" target="_blank" class="btn btn-secondary" title="چاپ چک لیست QC"><i class="fas fa-tasks"></i></a><a href="/projects/${p.id}/exit-slip" target="_blank" class="btn btn-secondary" title="چاپ برگه خروج"><i class="fas fa-receipt"></i></a><a href="/projects/${p.id}/download-pdf" class="btn btn-secondary" title="دانلود PDF"><i class="fas fa-file-pdf"></i></a><a href="/projects/${p.id}/download-excel" class="btn btn-secondary" title="دانلود Excel"><i class="fas fa-file-excel"></i></a></div></div>`;
+    }
+    function renderProjectsManager(projects) { DOMElements.projectsUl.innerHTML = projects?.length ? projects.map(p => `<li class="card project-item mb-3" id="project-manager-${p.id}">${createProjectCardHTML(p)}</li>`).join('') : `<li class="text-center text-muted p-4">هیچ پروژه‌ای یافت نشد.</li>`; }
+
+    // --- Data Fetching & Handling ---
+    async function fetchProjectsForManager() {
+        setLoading(true);
+        try { allProjectsCache = await api.get('/projects/'); allProjectsCache.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); handleSearch(); } 
+        catch (error) { showToast(`خطا در دریافت پروژه‌ها: ${error.message}`, 'error'); } 
+        finally { setLoading(false); }
+    }
+    function handleSearch() {
+        const term = DOMElements.searchInputManager.value.trim().toLowerCase();
+        const filtered = term ? allProjectsCache.filter(p => ['name', 'request_id', 'customer_name', 'panel_code'].some(key => p[key]?.toLowerCase().includes(term))) : allProjectsCache;
+        renderProjectsManager(filtered);
+    }
+    
+    // --- Event Listeners Setup ---
+    function setupEventListeners() {
+        DOMElements.logoutButton.addEventListener('click', logout);
+        DOMElements.searchInputManager.addEventListener("input", () => { clearTimeout(searchDebounceTimer); searchDebounceTimer = setTimeout(handleSearch, 300); });
+        
+        async function handleFormSubmit(form, endpoint) {
+            const formData = new FormData(form), btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            try { const data = await api.postForm(endpoint, formData); showToast(data.message, 'info'); form.reset(); } 
+            catch (error) { showToast(`خطا: ${error.message}`, 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload me-1"></i>بارگذاری'; }
+        }
+        DOMElements.detailedExcelUploadForm.addEventListener('submit', (e) => { e.preventDefault(); handleFormSubmit(e.target, '/projects/upload-detailed-excel/'); });
+        DOMElements.excelUploadForm.addEventListener('submit', (e) => { e.preventDefault(); handleFormSubmit(e.target, '/projects/upload-excel/'); });
+
+        DOMElements.recalculateBtn.addEventListener('click', async () => {
+            if (!confirm("آیا از محاسبه مجدد کد تابلو برای تمام پروژه‌ها مطمئن هستید؟")) return;
+            const btn = DOMElements.recalculateBtn; btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            try { const data = await api.post('/projects/recalculate-all-panel-codes/'); showToast(data.message, 'info'); await fetchProjectsForManager(); } 
+            catch (error) { showToast(`خطا: ${error.message}`, 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cogs me-2"></i>محاسبه مجدد'; }
+        });
+
+        DOMElements.projectsUl.addEventListener('click', async (e) => {
+            const target = e.target.closest('button, a');
+            if (!target) return;
+            const projectId = target.dataset.projectId;
+            if (target.matches('.delete-project-btn')) {
+                if (!confirm(`آیا از حذف پروژه ${projectId} مطمئن هستید؟`)) return;
+                target.disabled = true;
+                try { await api.delete(`/projects/${projectId}`); showToast(`پروژه ${projectId} حذف شد.`, 'success'); await fetchProjectsForManager(); } 
+                catch (error) { showToast(`خطا در حذف: ${error.message}`, 'error'); target.disabled = false; }
+            } else if (target.matches('.check-equipment-btn, .check-branch-btn')) {
+                e.preventDefault(); const type = target.matches('.check-equipment-btn') ? 'purchases' : 'branches';
+                target.disabled = true; target.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                try { const result = await api.post(`/projects/${projectId}/validate-${type}`); showToast(result.message, 'info'); } 
+                catch (error) { showToast(`خطا: ${error.message}`, 'error'); }
+            } else if (target.matches('.add-comment-btn')) {
+                const input = target.previousElementSibling, text = input.value.trim();
+                if (!text) return showToast('متن یادداشت خالی است.', 'error');
+                target.disabled = true;
+                try { await api.post(`/projects/${projectId}/comments`, { text }); showToast('یادداشت ثبت شد.', 'success'); input.value = ''; await fetchProjectsForManager(); } 
+                catch (error) { showToast(`خطا: ${error.message}`, 'error'); target.disabled = false; }
+            }
+        });
+    }
+
+    // --- WebSocket ---
+    function connectWebSocket() {
+        const ws = new WebSocket(`${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws?token=${localStorage.getItem('token')}`);
+        ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'update') { showToast('لیست پروژه‌ها بروزرسانی شد.', 'info'); fetchProjectsForManager(); } 
+            else if (msg.type === 'validation_result') {
+                const projectCard = document.getElementById(`project-manager-${msg.project_id}`);
+                if (projectCard) {
+                    projectCard.querySelectorAll('.check-equipment-btn, .check-branch-btn').forEach(btn => { btn.disabled = false; btn.innerHTML = btn.matches('.check-equipment-btn') ? '<i class="fas fa-dolly me-1"></i>کالا' : '<i class="fas fa-bolt me-1"></i>انشعاب'; });
+                    const placeholder = projectCard.querySelector(`#validation-result-${msg.project_id}`);
+                    if (placeholder) placeholder.innerHTML = `<div class="alert ${msg.result.has_discrepancy ? 'alert-danger' : 'alert-success'} mb-0 p-2">${msg.result.message.replace(/\n/g, "<br>")}</div>`;
+                    showToast("نتیجه بررسی دریافت شد", msg.result.has_discrepancy ? 'warning' : 'success');
+                }
+            } else if (msg.type === 'error') { showToast(msg.message, 'error'); }
+        };
+        ws.onclose = () => setTimeout(connectWebSocket, 5000);
+        ws.onerror = (err) => console.error("WebSocket error:", err);
+    }
+
+    // --- Procurement Report Logic ---
+    function setupProcurementReport() {
+        let s, e; const check = () => { DOMElements.getProcurementReportBtn.disabled = !(s && e && e >= s); };
+        DOMElements.procureStartDate.persianDatepicker({ format: 'YYYY-MM-DD', autoClose: true, onSelect: (u) => { s = u; DOMElements.procureEndDate.pDatepicker('setMinDate', u); check(); } });
+        DOMElements.procureEndDate.persianDatepicker({ format: 'YYYY-MM-DD', autoClose: true, onSelect: (u) => { e = u; check(); } });
+        DOMElements.getProcurementReportBtn.addEventListener('click', () => { if (DOMElements.getProcurementReportBtn.disabled) return; const sd = new Date(s).toISOString().split('T')[0], ed = new Date(e).toISOString().split('T')[0]; window.open(`/reports/procurement-summary/excel?start_date=${sd}&end_date=${ed}`, '_blank'); });
+    }
+
+    // --- Initial Load (Updated) ---
+    async function initialize() {
+        checkAuth();
+        const currentUser = await fetchCurrentUser();
+        
+        if(currentUser) {
+            setupSidebar(currentUser.role, window.location.pathname);
+        } else {
+            // This case should ideally not be reached because api helper would logout.
+            // But as a fallback:
+            console.error("Could not initialize page, user data is missing.");
+            return; // Stop execution
+        }
+
+        setupEventListeners();
+        setupProcurementReport();
+        await fetchProjectsForManager();
+        connectWebSocket();
+    }
+
+    initialize();
+});
+</script>
+</body>
+</html>

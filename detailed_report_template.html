@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش تابلوهای آماده تحویل</title>
+    <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/static/Vazirmatn-regular.ttf');
+        }
+        @page {
+            size: A3 landscape; /* از A3 استفاده می‌کنیم تا ستون‌های زیاد جا شوند */
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 8pt;
+        }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 16pt; margin: 0; }
+        .header h2 { font-size: 12pt; margin: 5px 0; }
+        .report-info { display: flex; justify-content: space-between; font-size: 10pt; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 3px; text-align: center; vertical-align: middle; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .signatures { margin-top: 40px; display: flex; justify-content: space-around; font-size: 11pt; page-break-inside: avoid; }
+        .print-actions { display: none; } /* دکمه چاپ گروهی را در این نما پنهان می‌کنیم */
+        @media print {
+            .print-actions { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>شرکت فرداد سازه گلشن</h1>
+        <h2>گزارش تابلوهای آماده تحویل به {{ company_name }}</h2>
+    </div>
+    <div class="report-info">
+        <span>تاریخ گزارش: {{ jalali_date }}</span>
+    </div>
+
+    <table>
+        <thead>
+            <!-- ردیف اول هدر -->
+            <tr>
+                <th rowspan="2">ردیف</th>
+                <th rowspan="2">نام مشترک</th>
+                <th rowspan="2">شماره تقاضا</th>
+                <th rowspan="2">نوع تابلو</th>
+                <th colspan="2">تعداد کنتور</th>
+                <th colspan="2">تعداد فیوز</th>
+                <th rowspan="2">تعداد مودم</th>
+                <th colspan="2">کنتور پیش بینی</th>
+                <th colspan="2">فیوز پیش بینی</th>
+                <th rowspan="2">سکو</th>
+                <th rowspan="2">تسمه استیل</th>
+                <th rowspan="2">بست تسمه</th>
+                <th colspan="2">پیچ</th>
+                <th colspan="2">لوله نیم گرد</th>
+                <th colspan="2">لوله خرطومی</th>
+            </tr>
+            <!-- ردیف دوم هدر -->
+            <tr>
+                <th>تکفاز</th><th>سه فاز</th>
+                <th>تکفاز</th><th>سه فاز</th>
+                <th>تکفاز</th><th>سه فاز</th>
+                <th>تکفاز</th><th>سه فاز</th>
+                <th>یکسررزوه</th><th>۱۶*۳۰۰</th>
+                <th>۲/۳</th><th>۳</th>
+                <th>۲۱</th><th>۲۹</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in report_data %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td style="text-align: right;">{{ item['نام مشترک'] }}</td>
+                <td>{{ item['شماره تقاضا'] }}</td>
+                <td>{{ item['کد تابلو'] }}</td>
+                <td>{{ item['کنتور تک فاز'] }}</td>
+                <td>{{ item['کنتور سه فاز'] }}</td>
+                <!-- تجمیع فیوزها برای نمایش در HTML -->
+                <td>{{ item['فیوز تک فاز 16'] + item['فیوز تک فاز 25'] + item['فیوز تک فاز 32'] }}</td>
+                <td>{{ item['فیوز سه فاز 25'] + item['فیوز سه فاز 32'] + item['فیوز سه فاز 63'] }}</td>
+                <td>{{ item['مودم'] }}</td>
+                <td>{{ item['خرید'] if item['خرید'] is not none else '-' }}</td>
+                <td>-</td> <!-- کنتور پیش بینی سه فاز -->
+                <td>-</td> <!-- فیوز پیش بینی تکفاز -->
+                <td>-</td> <!-- فیوز پیش بینی سه فاز -->
+                <td>{{ item['سکو'] }}</td>
+                <td>{{ item['تسمه استیل'] }}</td>
+                <td>{{ item['بست تسمه استیل'] }}</td>
+                <td>{{ item['پیچ یکسررزوه'] }}</td>
+                <td>{{ item['پیچ ۱۶*۳۰۰'] }}</td>
+                <td>{{ item['لوله نیم گرد 2/3'] }}</td>
+                <td>{{ item['لوله نیم گرد 3'] }}</td>
+                <td>{{ item['لوله خرطومی 21'] }}</td>
+                <td>{{ item['لوله خرطومی 29'] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="23">هیچ پروژه‌ای برای نمایش یافت نشد.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="signatures">
+        <div>امضاء مسئول کارگاه: ...........................</div>
+        <div>امضاء نماینده شرکت: ...........................</div>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد ناظر</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: "Vazirmatn", sans-serif; }
+        .status-submitted { background-color: #eff6ff; color: #1d4ed8; } .status-approved { background-color: #f0fdf4; color: #166534; } .status-rejected { background-color: #fef2f2; color: #991b1b; }
+        html.dark .status-submitted { background-color: #1e3a8a; color: #bfdbfe; } html.dark .status-approved { background-color: #14532d; color: #dcfce7; } html.dark .status-rejected { background-color: #7f1d1d; color: #fecaca; }
+        .modal { transition: opacity 0.25s ease; } .modal.hidden { opacity: 0; pointer-events: none; } .modal:not(.hidden) { opacity: 1; }
+        .modal > div { transition: transform 0.25s ease; } .modal.hidden > div { transform: scale(0.95); }
+        .table-input { width: 80px; text-align: center; border-radius: 5px; border: 1px solid #ccc; padding: 4px; background-color: #f9fafb; }
+        html.dark .table-input { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900">
+<div class="flex h-screen">
+	<!-- Sidebar (نسخه نهایی و هوشمند) -->
+	<aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+		<div class="flex flex-col h-full">
+			<div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+				<i class="fas fa-cogs text-blue-600 text-2xl"></i>
+				<span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+			</div>
+			<nav class="flex-1 px-4 py-6 space-y-2 text-sm">
+				<!-- ========= لینک‌های عمومی برای همه کاربران (کارمند و مدیر) ========= -->
+				<a href="/assembler-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-users-cog fa-fw ml-3"></i>
+					<span>آمار و گزارش کار</span>
+				</a>
+				<a href="/employee-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+					<i class="fas fa-user fa-fw ml-3"></i>
+					<span>گزارش‌های من</span>
+				</a>
+
+				<!-- ========= لینک‌های مخصوص مدیر (Supervisor) ========= -->
+				<div class="supervisor-only" style="display: none;">
+					<hr class="my-3 border-gray-200 dark:border-gray-700">
+					<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">پنل مدیریت</h6>
+					<a href="/dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-tachometer-alt fa-fw ml-3"></i>
+						<span>داشبورد اصلی</span>
+					</a>
+					<a href="/manager" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-user-shield fa-fw ml-3"></i>
+						<span>پنل مدیر</span>
+					</a>
+					<a href="/workshop" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-hard-hat fa-fw ml-3"></i>
+						<span>پنل کارگاه</span>
+					</a>
+					<a href="/reports" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg">
+						<i class="fas fa-chart-line fa-fw ml-3"></i>
+						<span>گزارش‌های KPI</span>
+					</a>
+					<div class="pt-4 mt-4 border-t dark:border-gray-700">
+						<a href="/personnel-management" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-users fa-fw ml-3"></i>
+							<span>مدیریت پرسنل</span>
+						</a>
+						<a href="/supervisor-dashboard" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg">
+							<i class="fas fa-user-check fa-fw ml-3"></i>
+							<span>داشبورد ناظر</span>
+						</a>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</aside>    
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+             <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3"><i class="fas fa-user-check text-indigo-600"></i><span>داشبورد ناظر (بررسی گزارش‌ها)</span></h1>
+             <div class="flex items-center gap-4">
+                 <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"><i class="fas fa-moon" id="theme-toggle-dark-icon"></i><i class="fas fa-sun hidden" id="theme-toggle-light-icon"></i></button>
+                 <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                 <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2"><span id="userName" class="font-semibold text-sm"></span><i class="fas fa-chevron-down text-xs"></i></button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20"><a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب</a></div>
+                 </div>
+             </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700"><tr><th class="px-6 py-3">نام پرسنل</th><th class="px-6 py-3">تاریخ گزارش</th><th class="px-6 py-3 text-center">وضعیت</th><th class="px-6 py-3 text-center">عملیات</th></tr></thead><tbody id="reportsTableBody"></tbody></table><div id="loader" class="text-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-2">درحال بارگذاری گزارش‌ها...</p></div><div id="noData" class="text-center py-10 hidden"><i class="fas fa-folder-open fa-2x text-gray-400"></i><p class="mt-2 text-gray-500">هیچ گزارشی برای بررسی یافت نشد.</p></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal -->
+<div id="reportModal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 items-center justify-center p-4 z-50"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"><div class="p-5 border-b dark:border-gray-700 flex justify-between items-center"><h3 id="modalTitle" class="text-xl font-semibold"></h3><button id="closeModalBtn" class="text-gray-500 hover:text-gray-800 dark:hover:text-white text-2xl">&times;</button></div><div id="modalBody" class="p-6 overflow-y-auto"></div><div id="modalFooter" class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg flex flex-col sm:flex-row sm:justify-end gap-3"></div></div></div>
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-[1100]"></div>
+
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- API Helper & Auth ---
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) { logout(); throw new Error('Unauthorized'); }
+            if (response.status === 204) return;
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`);
+            return data;
+        },
+        get: (url) => api._fetch(url),
+        put: (url, body) => api._fetch(url, { method: 'PUT', body: JSON.stringify(body) })
+    };
+    function checkAuth() { if (!localStorage.getItem('token')) window.location.href = '/login'; }
+    async function fetchCurrentUser() { try { const user = await api.get('/auth/me'); if(user.role !== 'supervisor') { alert('شما دسترسی لازم برای مشاهده این صفحه را ندارید.'); window.location.href = '/assembler-dashboard'; } document.getElementById('userName').textContent = user.name; return user; } catch (e) { console.error(e); } }
+    function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+
+    // --- UI & Utilities ---
+    const showToast = (message, type = 'info') => {
+        const toastId = 'toast-' + Date.now();
+        const colors = { info: 'bg-blue-500', success: 'bg-green-500', error: 'bg-red-500' };
+        const icon = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-triangle' };
+        const toastHtml = `<div id="${toastId}" class="max-w-xs ${colors[type]} text-white text-sm rounded-lg shadow-lg p-3 flex items-center transition-all duration-300 transform translate-x-full" role="alert"><i class="fas ${icon[type]} ml-2"></i><span>${message}</span></div>`;
+        document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+        setTimeout(() => document.getElementById(toastId)?.classList.remove('translate-x-full'), 100);
+        setTimeout(() => { const t = document.getElementById(toastId); if(t) { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); }}, 4500);
+    };
+    function setupThemeToggle() {
+        const themeToggleBtn = document.getElementById('theme-toggle'), darkIcon = document.getElementById('theme-toggle-dark-icon'), lightIcon = document.getElementById('theme-toggle-light-icon');
+        if (themeToggleBtn) {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); lightIcon.classList.remove('hidden'); darkIcon.classList.add('hidden'); }
+            themeToggleBtn.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; });
+        }
+    }
+    
+    // --- START OF NEW FUNCTION ---
+    function setupSidebar(userRole, currentPagePath) {
+        const supervisorLinks = document.querySelectorAll('.supervisor-only');
+        if (userRole === 'supervisor') {
+            supervisorLinks.forEach(link => {
+                link.style.display = 'block';
+            });
+        }
+        const navLinks = document.querySelectorAll('.nav-link-item');
+        navLinks.forEach(link => {
+            link.classList.remove('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+            link.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            const icon = link.querySelector('i');
+            if (icon) icon.classList.remove('text-blue-600');
+            if (link.getAttribute('href') === currentPagePath) {
+                link.classList.add('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+                if (icon) icon.classList.add('text-blue-600');
+            }
+        });
+    }
+    // --- END OF NEW FUNCTION ---
+
+    // --- DOM Elements & State ---
+    const DOM = {}; let reportConfig = null; let allReports = [];
+    ["reportsTableBody", "loader", "noData", "reportModal", "modalTitle", "modalBody", "modalFooter", "closeModalBtn"].forEach(id => DOM[id] = document.getElementById(id));
+    
+    // --- Logic ---
+    async function fetchReports() {
+        DOM.loader.style.display = 'block'; DOM.noData.style.display = 'none'; DOM.tableBody.innerHTML = '';
+        try {
+            allReports = await api.get('/daily-reports/all');
+            renderTable(allReports);
+        } catch (error) { showToast(error.message, 'error'); } 
+        finally { DOM.loader.style.display = 'none'; }
+    }
+
+    function renderTable(reports) {
+        if (reports.length === 0) { DOM.noData.style.display = 'block'; return; }
+        DOM.tableBody.innerHTML = reports.map(r => {
+            const statusMap = { submitted: 'status-submitted', approved: 'status-approved', rejected: 'status-rejected' };
+            const statusTextMap = { submitted: 'نیاز به بررسی', approved: 'تایید شده', rejected: 'رد شده' };
+            return `<tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">${r.personnel.name}</td>
+                <td class="px-6 py-4">${new persianDate(new Date(r.report_date)).format('YYYY/MM/DD')}</td>
+                <td class="px-6 py-4 text-center"><span class="px-3 py-1 text-xs font-medium rounded-full ${statusMap[r.status]}">${statusTextMap[r.status]}</span></td>
+                <td class="px-6 py-4 text-center"><button data-id="${r.id}" class="view-btn font-medium text-indigo-600 hover:underline">مشاهده و بررسی</button></td></tr>`;
+        }).join('');
+    }
+
+    function buildReportTable(config, data) {
+        let tableHtml = `<div class="space-y-6">`;
+        config.rows.forEach((row) => {
+            let contentHtml = '';
+            if (row.type === 'checkbox') {
+                const key = `R${config.rows.indexOf(row)}_I0`;
+                contentHtml = `<div class="flex items-center"><input type="checkbox" class="h-5 w-5 rounded" ${data[key] ? 'checked' : ''} disabled></div>`;
+            } else if (row.type === 'checkbox_group_with_values') {
+                contentHtml = `<div class="flex flex-wrap gap-x-6 gap-y-2">`;
+                row.items.forEach((item, itemIndex) => { const key = `R${config.rows.indexOf(row)}_I${itemIndex}`; contentHtml += `<label class="flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded" ${data[key] ? 'checked' : ''} disabled><span>${item.label} (${item.value}%)</span></label>`; });
+                contentHtml += `</div>`;
+            } else if (row.items) {
+                contentHtml = `<div class="flex flex-wrap items-center justify-start gap-x-6 gap-y-3">`;
+                row.items.forEach((item, itemIndex) => { if (item) { const key = `R${config.rows.indexOf(row)}_I${itemIndex}`; contentHtml += `<div class="text-center"><label class="block text-xs mb-1">${item.label}</label><input type="number" class="table-input" value="${data[key] || '0'}" readonly></div>`; } });
+                contentHtml += `</div>`;
+            }
+            tableHtml += `<div class="grid grid-cols-3 gap-4 items-start border-b dark:border-gray-700 pb-4"><div class="font-semibold col-span-1">${row.title}</div><div class="col-span-2">${contentHtml}</div></div>`;
+        });
+        return tableHtml + '</div>';
+    }
+
+    async function openModal(reportId) {
+        const report = allReports.find(r => r.id == reportId);
+        if (!report) return;
+        if (!reportConfig) reportConfig = await api.get('/daily-reports/config');
+        DOM.modalTitle.textContent = `گزارش ${report.personnel.name} - ${new persianDate(new Date(report.report_date)).format('YYYY/MM/DD')}`;
+        DOM.modalBody.innerHTML = buildReportTable(reportConfig, report.report_data);
+        DOM.modalFooter.innerHTML = '';
+        if (report.status === 'submitted') {
+            DOM.modalFooter.innerHTML = `<textarea id="supervisorNotes" class="w-full sm:w-1/2 p-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600" rows="2" placeholder="یادداشت ناظر (برای رد کردن الزامی است)..."></textarea>
+                <button id="rejectBtn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg">رد کردن</button>
+                <button id="approveBtn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg">تایید نهایی</button>`;
+            document.getElementById('approveBtn').onclick = () => handleApproval(reportId, 'approve');
+            document.getElementById('rejectBtn').onclick = () => handleApproval(reportId, 'reject');
+        } else if (report.supervisor_notes) {
+            DOM.modalFooter.innerHTML = `<div class="w-full text-sm text-gray-600 dark:text-gray-400"><strong>یادداشت ناظر:</strong> ${report.supervisor_notes}</div>`;
+        }
+        DOM.modal.classList.remove('hidden');
+    }
+    
+    function closeModal() { DOM.modal.classList.add('hidden'); }
+
+    async function handleApproval(reportId, action) {
+        const notes = document.getElementById('supervisorNotes')?.value.trim();
+        if (action === 'reject' && !notes) return showToast('برای رد کردن گزارش، نوشتن یادداشت الزامی است.', 'error');
+        const btnId = `${action}Btn`;
+        const btn = document.getElementById(btnId);
+        btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        try {
+            await api.put(`/daily-reports/${reportId}/${action}`, { supervisor_notes: notes });
+            showToast(`گزارش با موفقیت ${action === 'approve' ? 'تایید' : 'رد'} شد.`, 'success');
+            closeModal();
+            await fetchReports();
+        } catch (error) { showToast(error.message, 'error'); }
+        finally { btn.disabled = false; btn.textContent = action === 'approve' ? 'تایید نهایی' : 'رد کردن'; }
+    }
+
+    async function init() {
+        checkAuth();
+        const currentUser = await fetchCurrentUser();
+        setupThemeToggle();
+        
+        // --- ADDED CODE ---
+        if (currentUser) {
+            setupSidebar(currentUser.role, window.location.pathname);
+        }
+        // --- END OF ADDED CODE ---
+        
+        const userMenuBtn = document.getElementById('user-menu-button');
+        if (userMenuBtn) userMenuBtn.addEventListener('click', () => document.getElementById('user-menu').classList.toggle('hidden'));
+        
+        const logoutBtn = document.getElementById('logoutButton');
+        if (logoutBtn) logoutBtn.addEventListener('click', logout);
+        
+        if (DOM.closeModalBtn) DOM.closeModalBtn.addEventListener('click', closeModal);
+        if (DOM.modal) DOM.modal.addEventListener('click', e => { if (e.target === DOM.modal) closeModal(); });
+        if (DOM.tableBody) DOM.tableBody.addEventListener('click', e => { if (e.target.classList.contains('view-btn')) openModal(e.target.dataset.id); });
+
+        fetchReports();
+    }
+    init();
+});
+</script>
+</body>
+</html>

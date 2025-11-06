@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ورود به سیستم مانیتورینگ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        body { font-family: 'Vazirmatn', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <div class="text-center">
+            <i class="fas fa-cogs text-blue-600 text-4xl mb-2"></i>
+            <h1 class="text-2xl font-bold text-gray-800">ورود به سیستم</h1>
+            <p class="text-gray-500 mt-2">لطفا نام کاربری و رمز عبور خود را وارد کنید.</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">نام کاربری</label>
+                <div class="mt-1 relative">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input id="username" name="username" type="text" required
+                           class="w-full py-3 pr-10 pl-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">رمز عبور</label>
+                <div class="mt-1 relative">
+                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <input id="password" name="password" type="password" required
+                           class="w-full py-3 pr-10 pl-4 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+            </div>
+
+            <div id="errorMessage" class="hidden text-sm text-center text-red-600 bg-red-50 p-3 rounded-lg">
+                <!-- Error message will be shown here -->
+            </div>
+
+            <div>
+                <button type="submit" id="submitButton"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                    <span id="buttonText">ورود</span>
+                    <i id="buttonSpinner" class="fas fa-spinner fa-spin hidden"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessageDiv = document.getElementById('errorMessage');
+            const submitButton = document.getElementById('submitButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            // ==========================================================
+            //                 ✅✅✅ اصلاح کلیدی ✅✅✅
+            // 
+            // پاک کردن اطلاعات قدیمی با کلید 'token' برای هماهنگی با سایر صفحات
+            // ==========================================================
+            localStorage.removeItem('token');
+            localStorage.removeItem('user'); // بهتر است اطلاعات کاربر را هم با کلید یکسان ذخیره کنیم
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (!username || !password) {
+                    errorMessageDiv.textContent = 'نام کاربری و رمز عبور الزامی است.';
+                    errorMessageDiv.classList.remove('hidden');
+                    return;
+                }
+
+                errorMessageDiv.classList.add('hidden');
+                submitButton.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonSpinner.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.detail || 'نام کاربری یا رمز عبور اشتباه است.');
+                    }
+                    
+                    // ==========================================================
+                    //                 ✅✅✅ اصلاح کلیدی ✅✅✅
+                    // 
+                    // ذخیره‌سازی توکن با کلید 'token'
+                    // ==========================================================
+                    
+                    // 1. ذخیره توکن با نام 'token' تا با اکثر داشبوردها یکسان شود
+                    localStorage.setItem('token', data.access_token);
+                    
+                    // 2. ذخیره اطلاعات کاربر (شامل نام و نقش) با نام 'user'
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // 3. هدایت هوشمند کاربر به داشبورد مناسب بر اساس نقش
+                    if (data.user.role === 'supervisor') {
+                        window.location.href = '/dashboard'; // مدیر به داشبورد اصلی می‌رود
+                    } else {
+                        // کارمند به داشبورد مونتاژ می‌رود که صفحه اصلی اوست
+                        window.location.href = '/assembler-dashboard'; 
+                    }
+
+                } catch (error) {
+                    errorMessageDiv.textContent = error.message;
+                    errorMessageDiv.classList.remove('hidden');
+                } finally {
+                    submitButton.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    buttonSpinner.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

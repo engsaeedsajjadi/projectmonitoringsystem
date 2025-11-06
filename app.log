@@ -1,0 +1,447 @@
+2025-11-06 16:21:44,636 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:44,637 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:21:44,637 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,638 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:21:44,638 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,639 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:21:44,639 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,639 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:21:44,640 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,640 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:21:44,641 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,641 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:21:44,642 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,642 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:21:44,643 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,644 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:21:44,645 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,646 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:21:44,646 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,647 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:21:44,647 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:44,648 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:21:44,649 - __main__ - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:21:44,665 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:44,668 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:44,668 - sqlalchemy.engine.Engine - INFO - [generated in 0.00067s] ('supervisor', 1, 1, 0)
+2025-11-06 16:21:44,670 - __main__ - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:21:44,670 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:44,671 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:44,672 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:44,673 - sqlalchemy.engine.Engine - INFO - [generated in 0.00062s] (1, 0)
+2025-11-06 16:21:44,674 - __main__ - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:21:44,674 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:46,888 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:46,889 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:21:46,889 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,891 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:21:46,893 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,894 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:21:46,895 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,896 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:21:46,896 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,897 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:21:46,898 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,899 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:21:46,899 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,900 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:21:46,901 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,902 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:21:46,902 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,903 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:21:46,904 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,905 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:21:46,905 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:46,906 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:21:46,910 - __mp_main__ - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:21:46,925 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:46,929 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:46,929 - sqlalchemy.engine.Engine - INFO - [generated in 0.00073s] ('supervisor', 1, 1, 0)
+2025-11-06 16:21:46,931 - __mp_main__ - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:21:46,931 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:46,932 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:46,934 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:46,934 - sqlalchemy.engine.Engine - INFO - [generated in 0.00069s] (1, 0)
+2025-11-06 16:21:46,935 - __mp_main__ - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:21:46,936 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:47,164 - watchfiles.main - INFO - 1 change detected
+2025-11-06 16:21:47,261 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:47,262 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:21:47,263 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,264 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:21:47,265 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,266 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:21:47,266 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,267 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:21:47,268 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,269 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:21:47,269 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,272 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:21:47,273 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,274 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:21:47,274 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,276 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:21:47,276 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,277 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:21:47,278 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,279 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:21:47,279 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:21:47,280 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:21:47,281 - project_monitoring_system - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:21:47,296 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:47,298 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:47,298 - sqlalchemy.engine.Engine - INFO - [generated in 0.00064s] ('supervisor', 1, 1, 0)
+2025-11-06 16:21:47,300 - project_monitoring_system - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:21:47,301 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:47,302 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:47,303 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:47,304 - sqlalchemy.engine.Engine - INFO - [generated in 0.00064s] (1, 0)
+2025-11-06 16:21:47,305 - project_monitoring_system - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:21:47,305 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:47,366 - project_monitoring_system - INFO - Application starting up...
+2025-11-06 16:21:47,367 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:47,367 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-11-06 16:21:47,368 - sqlalchemy.engine.Engine - INFO - [generated in 0.00066s] ()
+2025-11-06 16:21:47,369 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:21:47,370 - project_monitoring_system - INFO - Database connection verified successfully.
+2025-11-06 16:21:47,520 - watchfiles.main - INFO - 6 changes detected
+2025-11-06 16:21:47,876 - watchfiles.main - INFO - 1 change detected
+2025-11-06 16:21:58,601 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:21:58,604 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:21:58,604 - sqlalchemy.engine.Engine - INFO - [generated in 0.00085s] ('سجادی', 1, 0)
+2025-11-06 16:21:58,607 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:22:20,418 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:22:20,419 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:22:20,419 - sqlalchemy.engine.Engine - INFO - [cached since 21.82s ago] ('سجادی', 1, 0)
+2025-11-06 16:22:20,422 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:22:20,522 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:22:20,523 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:22:20,528 - sqlalchemy.engine.Engine - INFO - SELECT count(projects.id) AS count_1 
+FROM projects
+2025-11-06 16:22:20,535 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp, equipment_items_1.id AS equipment_items_1_id, equipment_items_1.project_id AS equipment_items_1_project_id, equipment_items_1.item_name AS equipment_items_1_item_name, equipment_items_1.quantity AS equipment_items_1_quantity, comments_1.id AS comments_1_id, comments_1.project_id AS comments_1_project_id, comments_1.text AS comments_1_text, comments_1.author AS comments_1_author, comments_1.timestamp AS comments_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id LEFT OUTER JOIN equipment_items AS equipment_items_1 ON projects.id = equipment_items_1.project_id LEFT OUTER JOIN comments AS comments_1 ON projects.id = comments_1.project_id ORDER BY projects.created_at DESC, steps_1.timestamp, comments_1.timestamp DESC
+2025-11-06 16:22:20,536 - sqlalchemy.engine.Engine - INFO - [generated in 0.00837s] ()
+2025-11-06 16:22:20,537 - sqlalchemy.engine.Engine - INFO - [generated in 0.00191s] ()
+2025-11-06 16:22:20,540 - sqlalchemy.engine.Engine - INFO - SELECT count(projects.id) AS count_1 
+FROM projects JOIN steps ON projects.id = steps.project_id 
+WHERE steps.name_key = ? AND steps.timestamp >= ?
+2025-11-06 16:22:20,545 - sqlalchemy.engine.Engine - INFO - [generated in 0.00527s] ('EXIT_PANEL', '2025-11-01 00:00:00.000000')
+2025-11-06 16:22:20,551 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id ORDER BY steps_1.timestamp
+2025-11-06 16:22:20,552 - sqlalchemy.engine.Engine - INFO - [generated in 0.00083s] ()
+2025-11-06 16:22:20,688 - sqlalchemy.engine.Engine - INFO - SELECT equipment_items.project_id AS equipment_items_project_id, equipment_items.id AS equipment_items_id, equipment_items.item_name AS equipment_items_item_name, equipment_items.quantity AS equipment_items_quantity 
+FROM equipment_items 
+WHERE equipment_items.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2025-11-06 16:22:20,690 - sqlalchemy.engine.Engine - INFO - [generated in 0.00280s] (440, 493, 494, 495, 496, 497, 498, 16, 13, 6, 11, 12, 7, 4, 10, 15, 9, 3, 8, 5, 2, 19, 18, 17, 20, 26, 22, 24, 30, 21, 28, 29, 25, 33, 31, 36, 32, 27, 43, 42, 41, 47, 45, 40, 39, 23, 14, 38, 48, 46 ... 392 parameters truncated ... 447, 445, 444, 459, 458, 457, 456, 455, 454, 453, 452, 451, 450, 449, 448, 446, 463, 462, 460, 438, 470, 466, 464, 461, 467, 469, 468, 472, 473, 471, 477, 476, 475, 474, 483, 482, 481, 480, 479, 478, 491, 489, 490, 488, 487, 486, 485, 484, 465, 492)
+2025-11-06 16:22:20,752 - sqlalchemy.engine.Engine - INFO - SELECT comments.project_id AS comments_project_id, comments.id AS comments_id, comments.text AS comments_text, comments.author AS comments_author, comments.timestamp AS comments_timestamp 
+FROM comments 
+WHERE comments.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ORDER BY comments.timestamp DESC
+2025-11-06 16:22:20,755 - sqlalchemy.engine.Engine - INFO - [generated in 0.00305s] (440, 493, 494, 495, 496, 497, 498, 16, 13, 6, 11, 12, 7, 4, 10, 15, 9, 3, 8, 5, 2, 19, 18, 17, 20, 26, 22, 24, 30, 21, 28, 29, 25, 33, 31, 36, 32, 27, 43, 42, 41, 47, 45, 40, 39, 23, 14, 38, 48, 46 ... 392 parameters truncated ... 447, 445, 444, 459, 458, 457, 456, 455, 454, 453, 452, 451, 450, 449, 448, 446, 463, 462, 460, 438, 470, 466, 464, 461, 467, 469, 468, 472, 473, 471, 477, 476, 475, 474, 483, 482, 481, 480, 479, 478, 491, 489, 490, 488, 487, 486, 485, 484, 465, 492)
+2025-11-06 16:22:20,803 - project_monitoring_system - INFO - KPI summary generated successfully.
+2025-11-06 16:22:20,819 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:22:21,253 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:22:21,371 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:22:21,373 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:22:21,374 - sqlalchemy.engine.Engine - INFO - [cached since 22.77s ago] ('سجادی', 1, 0)
+2025-11-06 16:22:21,377 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:22:21,379 - project_monitoring_system - INFO - WebSocket connected. User ID: 13. Total connections: 1
+2025-11-06 16:23:24,251 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:24,251 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:23:24,252 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,253 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:23:24,253 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,254 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:23:24,254 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,254 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:23:24,255 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,256 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:23:24,256 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,256 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:23:24,257 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,257 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:23:24,258 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,259 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:23:24,260 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,261 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:23:24,263 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,265 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:23:24,265 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:24,266 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:23:24,267 - __main__ - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:23:24,284 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:24,287 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:24,287 - sqlalchemy.engine.Engine - INFO - [generated in 0.00094s] ('supervisor', 1, 1, 0)
+2025-11-06 16:23:24,289 - __main__ - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:23:24,289 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:24,290 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:24,293 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:24,294 - sqlalchemy.engine.Engine - INFO - [generated in 0.00082s] (1, 0)
+2025-11-06 16:23:24,295 - __main__ - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:23:24,296 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,407 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,408 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:23:26,410 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,412 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:23:26,412 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,413 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:23:26,414 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,415 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:23:26,415 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,416 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:23:26,417 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,418 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:23:26,418 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,419 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:23:26,420 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,421 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:23:26,421 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,422 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:23:26,423 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,423 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:23:26,424 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,425 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:23:26,426 - __mp_main__ - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:23:26,442 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,446 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:26,446 - sqlalchemy.engine.Engine - INFO - [generated in 0.00071s] ('supervisor', 1, 1, 0)
+2025-11-06 16:23:26,448 - __mp_main__ - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:23:26,448 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,449 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,451 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:26,451 - sqlalchemy.engine.Engine - INFO - [generated in 0.00061s] (1, 0)
+2025-11-06 16:23:26,452 - __mp_main__ - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:23:26,453 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,644 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,644 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("comments")
+2025-11-06 16:23:26,645 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,647 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("projects")
+2025-11-06 16:23:26,648 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,648 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("steps")
+2025-11-06 16:23:26,649 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,650 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("equipment_items")
+2025-11-06 16:23:26,650 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,651 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("personnel")
+2025-11-06 16:23:26,652 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,653 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("daily_work_reports")
+2025-11-06 16:23:26,653 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,654 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouses")
+2025-11-06 16:23:26,654 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,655 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("warehouse_items")
+2025-11-06 16:23:26,656 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,657 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("inventory_transactions")
+2025-11-06 16:23:26,657 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,659 - sqlalchemy.engine.Engine - INFO - PRAGMA main.table_info("panel_code_items")
+2025-11-06 16:23:26,659 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-11-06 16:23:26,660 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:23:26,663 - project_monitoring_system - INFO - Database tables and indexes created/verified successfully.
+2025-11-06 16:23:26,666 - watchfiles.main - INFO - 1 change detected
+2025-11-06 16:23:26,678 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,680 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.role = ? AND personnel.is_active = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:26,681 - sqlalchemy.engine.Engine - INFO - [generated in 0.00064s] ('supervisor', 1, 1, 0)
+2025-11-06 16:23:26,684 - project_monitoring_system - INFO - Default supervisor user already exists: سجادی
+2025-11-06 16:23:26,684 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,685 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,686 - sqlalchemy.engine.Engine - INFO - SELECT warehouses.id AS warehouses_id, warehouses.name AS warehouses_name, warehouses.location AS warehouses_location, warehouses.description AS warehouses_description 
+FROM warehouses
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:26,687 - sqlalchemy.engine.Engine - INFO - [generated in 0.00055s] (1, 0)
+2025-11-06 16:23:26,688 - project_monitoring_system - INFO - Default warehouse already exists: انبار مرکزی
+2025-11-06 16:23:26,688 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,750 - project_monitoring_system - INFO - Application starting up...
+2025-11-06 16:23:26,751 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,752 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-11-06 16:23:26,752 - sqlalchemy.engine.Engine - INFO - [generated in 0.00066s] ()
+2025-11-06 16:23:26,753 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:26,754 - project_monitoring_system - INFO - Database connection verified successfully.
+2025-11-06 16:23:26,823 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:26,825 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:26,827 - sqlalchemy.engine.Engine - INFO - [generated in 0.00192s] ('سجادی', 1, 0)
+2025-11-06 16:23:26,828 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:23:26,829 - project_monitoring_system - INFO - WebSocket connected. User ID: 13. Total connections: 1
+2025-11-06 16:23:27,073 - watchfiles.main - INFO - 1 change detected
+2025-11-06 16:23:34,480 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:34,482 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:34,483 - sqlalchemy.engine.Engine - INFO - [cached since 7.658s ago] ('سجادی', 1, 0)
+2025-11-06 16:23:34,485 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:34,499 - project_monitoring_system - INFO - WebSocket disconnected. Total connections: 0
+2025-11-06 16:23:34,499 - project_monitoring_system - INFO - WebSocket with user_id 13 disconnected.
+2025-11-06 16:23:34,570 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:34,582 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp, equipment_items_1.id AS equipment_items_1_id, equipment_items_1.project_id AS equipment_items_1_project_id, equipment_items_1.item_name AS equipment_items_1_item_name, equipment_items_1.quantity AS equipment_items_1_quantity, comments_1.id AS comments_1_id, comments_1.project_id AS comments_1_project_id, comments_1.text AS comments_1_text, comments_1.author AS comments_1_author, comments_1.timestamp AS comments_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id LEFT OUTER JOIN equipment_items AS equipment_items_1 ON projects.id = equipment_items_1.project_id LEFT OUTER JOIN comments AS comments_1 ON projects.id = comments_1.project_id ORDER BY projects.created_at DESC, steps_1.timestamp, comments_1.timestamp DESC
+2025-11-06 16:23:34,583 - sqlalchemy.engine.Engine - INFO - [generated in 0.00085s] ()
+2025-11-06 16:23:34,992 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:23:35,156 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:23:35,159 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:23:35,161 - sqlalchemy.engine.Engine - INFO - [cached since 8.336s ago] ('سجادی', 1, 0)
+2025-11-06 16:23:35,162 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:23:35,163 - project_monitoring_system - INFO - WebSocket connected. User ID: 13. Total connections: 1
+2025-11-06 16:24:10,505 - project_monitoring_system - INFO - WebSocket disconnected. Total connections: 0
+2025-11-06 16:24:10,507 - project_monitoring_system - INFO - WebSocket with user_id 13 disconnected.
+2025-11-06 16:24:10,768 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:10,769 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:10,770 - sqlalchemy.engine.Engine - INFO - [cached since 43.95s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:10,772 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:10,820 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:10,821 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp, equipment_items_1.id AS equipment_items_1_id, equipment_items_1.project_id AS equipment_items_1_project_id, equipment_items_1.item_name AS equipment_items_1_item_name, equipment_items_1.quantity AS equipment_items_1_quantity, comments_1.id AS comments_1_id, comments_1.project_id AS comments_1_project_id, comments_1.text AS comments_1_text, comments_1.author AS comments_1_author, comments_1.timestamp AS comments_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id LEFT OUTER JOIN equipment_items AS equipment_items_1 ON projects.id = equipment_items_1.project_id LEFT OUTER JOIN comments AS comments_1 ON projects.id = comments_1.project_id ORDER BY projects.created_at DESC, steps_1.timestamp, comments_1.timestamp DESC
+2025-11-06 16:24:10,822 - sqlalchemy.engine.Engine - INFO - [cached since 36.24s ago] ()
+2025-11-06 16:24:11,310 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:11,492 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:11,495 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:11,496 - sqlalchemy.engine.Engine - INFO - [cached since 44.67s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:11,497 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:24:11,498 - project_monitoring_system - INFO - WebSocket connected. User ID: 13. Total connections: 1
+2025-11-06 16:24:15,557 - project_monitoring_system - INFO - WebSocket disconnected. Total connections: 0
+2025-11-06 16:24:15,557 - project_monitoring_system - INFO - WebSocket with user_id 13 disconnected.
+2025-11-06 16:24:15,598 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:15,611 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:15,612 - sqlalchemy.engine.Engine - INFO - [cached since 48.79s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:15,613 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:15,636 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:15,637 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:15,639 - sqlalchemy.engine.Engine - INFO - [cached since 48.81s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:15,643 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.is_active = ? ORDER BY personnel.name
+2025-11-06 16:24:15,645 - sqlalchemy.engine.Engine - INFO - [generated in 0.00227s] (1,)
+2025-11-06 16:24:15,647 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:17,487 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:17,488 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:17,489 - sqlalchemy.engine.Engine - INFO - [cached since 50.66s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:17,494 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:19,338 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:19,339 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:19,339 - sqlalchemy.engine.Engine - INFO - [cached since 52.51s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:19,348 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:19,438 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:19,438 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:19,445 - sqlalchemy.engine.Engine - INFO - SELECT count(projects.id) AS count_1 
+FROM projects
+2025-11-06 16:24:19,447 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp, equipment_items_1.id AS equipment_items_1_id, equipment_items_1.project_id AS equipment_items_1_project_id, equipment_items_1.item_name AS equipment_items_1_item_name, equipment_items_1.quantity AS equipment_items_1_quantity, comments_1.id AS comments_1_id, comments_1.project_id AS comments_1_project_id, comments_1.text AS comments_1_text, comments_1.author AS comments_1_author, comments_1.timestamp AS comments_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id LEFT OUTER JOIN equipment_items AS equipment_items_1 ON projects.id = equipment_items_1.project_id LEFT OUTER JOIN comments AS comments_1 ON projects.id = comments_1.project_id ORDER BY projects.created_at DESC, steps_1.timestamp, comments_1.timestamp DESC
+2025-11-06 16:24:19,447 - sqlalchemy.engine.Engine - INFO - [generated in 0.00221s] ()
+2025-11-06 16:24:19,448 - sqlalchemy.engine.Engine - INFO - [cached since 44.87s ago] ()
+2025-11-06 16:24:19,451 - sqlalchemy.engine.Engine - INFO - SELECT count(projects.id) AS count_1 
+FROM projects JOIN steps ON projects.id = steps.project_id 
+WHERE steps.name_key = ? AND steps.timestamp >= ?
+2025-11-06 16:24:19,454 - sqlalchemy.engine.Engine - INFO - [generated in 0.00361s] ('EXIT_PANEL', '2025-11-01 00:00:00.000000')
+2025-11-06 16:24:19,465 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2, steps_1.id AS steps_1_id, steps_1.project_id AS steps_1_project_id, steps_1.name_key AS steps_1_name_key, steps_1.timestamp AS steps_1_timestamp 
+FROM projects LEFT OUTER JOIN steps AS steps_1 ON projects.id = steps_1.project_id ORDER BY steps_1.timestamp
+2025-11-06 16:24:19,466 - sqlalchemy.engine.Engine - INFO - [generated in 0.00142s] ()
+2025-11-06 16:24:19,569 - sqlalchemy.engine.Engine - INFO - SELECT equipment_items.project_id AS equipment_items_project_id, equipment_items.id AS equipment_items_id, equipment_items.item_name AS equipment_items_item_name, equipment_items.quantity AS equipment_items_quantity 
+FROM equipment_items 
+WHERE equipment_items.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2025-11-06 16:24:19,573 - sqlalchemy.engine.Engine - INFO - [generated in 0.00371s] (440, 493, 494, 495, 496, 497, 498, 16, 13, 6, 11, 12, 7, 4, 10, 15, 9, 3, 8, 5, 2, 19, 18, 17, 20, 26, 22, 24, 30, 21, 28, 29, 25, 33, 31, 36, 32, 27, 43, 42, 41, 47, 45, 40, 39, 23, 14, 38, 48, 46 ... 392 parameters truncated ... 447, 445, 444, 459, 458, 457, 456, 455, 454, 453, 452, 451, 450, 449, 448, 446, 463, 462, 460, 438, 470, 466, 464, 461, 467, 469, 468, 472, 473, 471, 477, 476, 475, 474, 483, 482, 481, 480, 479, 478, 491, 489, 490, 488, 487, 486, 485, 484, 465, 492)
+2025-11-06 16:24:19,630 - sqlalchemy.engine.Engine - INFO - SELECT comments.project_id AS comments_project_id, comments.id AS comments_id, comments.text AS comments_text, comments.author AS comments_author, comments.timestamp AS comments_timestamp 
+FROM comments 
+WHERE comments.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ORDER BY comments.timestamp DESC
+2025-11-06 16:24:19,632 - sqlalchemy.engine.Engine - INFO - [generated in 0.00272s] (440, 493, 494, 495, 496, 497, 498, 16, 13, 6, 11, 12, 7, 4, 10, 15, 9, 3, 8, 5, 2, 19, 18, 17, 20, 26, 22, 24, 30, 21, 28, 29, 25, 33, 31, 36, 32, 27, 43, 42, 41, 47, 45, 40, 39, 23, 14, 38, 48, 46 ... 392 parameters truncated ... 447, 445, 444, 459, 458, 457, 456, 455, 454, 453, 452, 451, 450, 449, 448, 446, 463, 462, 460, 438, 470, 466, 464, 461, 467, 469, 468, 472, 473, 471, 477, 476, 475, 474, 483, 482, 481, 480, 479, 478, 491, 489, 490, 488, 487, 486, 485, 484, 465, 492)
+2025-11-06 16:24:19,656 - project_monitoring_system - INFO - KPI summary generated successfully.
+2025-11-06 16:24:19,671 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:20,144 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:20,247 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:20,249 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:20,250 - sqlalchemy.engine.Engine - INFO - [cached since 53.43s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:20,252 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-11-06 16:24:20,253 - project_monitoring_system - INFO - WebSocket connected. User ID: 13. Total connections: 1
+2025-11-06 16:24:21,808 - project_monitoring_system - INFO - WebSocket disconnected. Total connections: 0
+2025-11-06 16:24:21,811 - project_monitoring_system - INFO - WebSocket with user_id 13 disconnected.
+2025-11-06 16:24:21,837 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:21,838 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:21,839 - sqlalchemy.engine.Engine - INFO - [cached since 55.01s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:21,847 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:23,909 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:23,911 - sqlalchemy.engine.Engine - INFO - SELECT personnel.id AS personnel_id, personnel.name AS personnel_name, personnel.username AS personnel_username, personnel.password_hash AS personnel_password_hash, personnel.role AS personnel_role, personnel.is_active AS personnel_is_active 
+FROM personnel 
+WHERE personnel.username = ?
+ LIMIT ? OFFSET ?
+2025-11-06 16:24:23,912 - sqlalchemy.engine.Engine - INFO - [cached since 57.09s ago] ('سجادی', 1, 0)
+2025-11-06 16:24:23,916 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-11-06 16:24:23,970 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-11-06 16:24:23,979 - sqlalchemy.engine.Engine - INFO - SELECT projects.id AS projects_id, projects.name AS projects_name, projects.location AS projects_location, projects.request_id AS projects_request_id, projects.customer_name AS projects_customer_name, projects.created_at AS projects_created_at, projects.barcode_payload AS projects_barcode_payload, projects.panel_type_key AS projects_panel_type_key, projects.panel_code AS projects_panel_code, projects.assembler_1 AS projects_assembler_1, projects.assembler_2 AS projects_assembler_2 
+FROM projects 
+WHERE projects.assembler_1 IS NOT NULL AND projects.panel_type_key IS NOT NULL
+2025-11-06 16:24:23,981 - sqlalchemy.engine.Engine - INFO - [generated in 0.00219s] ()
+2025-11-06 16:24:23,987 - sqlalchemy.engine.Engine - INFO - SELECT equipment_items.project_id AS equipment_items_project_id, equipment_items.id AS equipment_items_id, equipment_items.item_name AS equipment_items_item_name, equipment_items.quantity AS equipment_items_quantity 
+FROM equipment_items 
+WHERE equipment_items.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2025-11-06 16:24:23,998 - sqlalchemy.engine.Engine - INFO - [generated in 0.01135s] (2, 3, 4, 5, 6, 7, 9, 10, 11, 15, 16, 17, 49, 50, 52, 53, 54, 55, 56, 57, 58, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 88, 90, 91, 92 ... 299 parameters truncated ... 435, 436, 437, 438, 439, 441, 442, 443, 444, 445, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 485, 489, 490, 491)
+2025-11-06 16:24:24,033 - sqlalchemy.engine.Engine - INFO - SELECT comments.project_id AS comments_project_id, comments.id AS comments_id, comments.text AS comments_text, comments.author AS comments_author, comments.timestamp AS comments_timestamp 
+FROM comments 
+WHERE comments.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ORDER BY comments.timestamp DESC
+2025-11-06 16:24:24,067 - sqlalchemy.engine.Engine - INFO - [generated in 0.03404s] (2, 3, 4, 5, 6, 7, 9, 10, 11, 15, 16, 17, 49, 50, 52, 53, 54, 55, 56, 57, 58, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 88, 90, 91, 92 ... 299 parameters truncated ... 435, 436, 437, 438, 439, 441, 442, 443, 444, 445, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 485, 489, 490, 491)
+2025-11-06 16:24:24,076 - sqlalchemy.engine.Engine - INFO - SELECT steps.project_id AS steps_project_id, steps.id AS steps_id, steps.name_key AS steps_name_key, steps.timestamp AS steps_timestamp 
+FROM steps 
+WHERE steps.project_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ORDER BY steps.timestamp
+2025-11-06 16:24:24,077 - sqlalchemy.engine.Engine - INFO - [generated in 0.00347s] (2, 3, 4, 5, 6, 7, 9, 10, 11, 15, 16, 17, 49, 50, 52, 53, 54, 55, 56, 57, 58, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 88, 90, 91, 92 ... 299 parameters truncated ... 435, 436, 437, 438, 439, 441, 442, 443, 444, 445, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 485, 489, 490, 491)
+2025-11-06 16:24:24,163 - sqlalchemy.engine.Engine - INFO - ROLLBACK

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد مونتاژ و گزارش کار</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        html.dark { color-scheme: dark; }
+        body { font-family: "Vazirmatn", sans-serif; }
+        .shamsi-datepicker-display { background-color: #fff; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.5rem 0.75rem; width: 100%; cursor: pointer; }
+        html.dark .shamsi-datepicker-display { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05); }
+        html.dark body { background-color: #111827; } html.dark .card { background-color: #1f2937; border: 1px solid #374151; }
+        .table-input { width: 80px; text-align: center; border-radius: 5px; border: 1px solid #ccc; padding: 4px; }
+        html.dark .table-input { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        .status-submitted { background-color: #eff6ff; color: #1d4ed8; } .status-approved { background-color: #f0fdf4; color: #166534; } .status-rejected { background-color: #fef2f2; color: #991b1b; }
+        html.dark .status-submitted { background-color: #1e3a8a; color: #bfdbfe; } html.dark .status-approved { background-color: #14532d; color: #dcfce7; } html.dark .status-rejected { background-color: #7f1d1d; color: #fecaca; }
+        .tab-button { cursor: pointer; padding: 10px 16px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-button.active { border-color: #4f46e5; color: #4f46e5; font-weight: 600; }
+        html.dark .tab-button.active { color: #818cf8; border-color: #818cf8; }
+    </style>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<div class="flex h-screen">
+	<!-- Sidebar -->
+	<aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+		<div class="flex flex-col h-full">
+			<div class="h-16 flex items-center justify-center border-b dark:border-gray-700">
+				<i class="fas fa-cogs text-blue-600 text-2xl"></i>
+				<span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+			</div>
+			<nav class="flex-1 px-4 py-6 space-y-2 text-sm">
+				<a href="/assembler-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-users-cog fa-fw ml-3"></i><span>آمار و گزارش کار</span></a>
+				<a href="/employee-dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-user fa-fw ml-3"></i><span>گزارش‌های من</span></a>
+				<div class="supervisor-only" style="display: none;">
+					<hr class="my-3 border-gray-200 dark:border-gray-700">
+					<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">پنل مدیریت</h6>
+					<a href="/dashboard" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-tachometer-alt fa-fw ml-3"></i><span>داشبورد اصلی</span></a>
+					<a href="/manager" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-user-shield fa-fw ml-3"></i><span>پنل مدیر</span></a>
+					<a href="/workshop" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-hard-hat fa-fw ml-3"></i><span>پنل کارگاه</span></a>
+					<a href="/reports" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg"><i class="fas fa-chart-line fa-fw ml-3"></i><span>گزارش‌های KPI</span></a>
+					<div class="pt-4 mt-4 border-t dark:border-gray-700">
+						<a href="/personnel-management" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg"><i class="fas fa-users fa-fw ml-3"></i><span>مدیریت پرسنل</span></a>
+						<a href="/supervisor-dashboard" class="nav-link-item flex items-center mt-2 px-4 py-2.5 rounded-lg"><i class="fas fa-user-check fa-fw ml-3"></i><span>داشبورد ناظر</span></a>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</aside>
+    
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+             <h1 class="text-xl font-semibold text-gray-800 dark:text-white flex items-center gap-3"><i class="fas fa-chart-pie text-indigo-600 dark:text-indigo-400"></i><span>داشبورد مونتاژ و گزارش کار</span></h1>
+             <div class="flex items-center gap-4">
+                 <button id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"><i class="fas fa-moon" id="theme-toggle-dark-icon"></i><i class="fas fa-sun hidden" id="theme-toggle-light-icon"></i></button>
+                 <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                 <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2"><span id="userName" class="font-semibold text-sm"></span><i class="fas fa-chevron-down text-xs"></i></button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20"><a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"><i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب</a></div>
+                 </div>
+             </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="mb-6"><div class="border-b border-gray-200 dark:border-gray-700"><nav class="flex space-x-reverse space-x-4 -mb-px"><button id="statsTab" class="tab-button active"><i class="fas fa-chart-line ml-2"></i> آمار عملکرد</button><button id="reportTab" class="tab-button"><i class="fas fa-clipboard-check ml-2"></i> گزارش کار روزانه</button></nav></div></div>
+            
+            <!-- Tab Content: Stats -->
+            <div id="statsContent">
+                <div class="card p-5 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 items-end">
+                        <div>
+                            <label for="startDateDisplay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">از تاریخ</label>
+                            <input type="text" id="startDateDisplay" class="shamsi-datepicker-display" readonly placeholder="انتخاب کنید">
+                            <input type="hidden" id="startDateInput">
+                        </div>
+                        <div>
+                            <label for="endDateDisplay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تا تاریخ</label>
+                            <input type="text" id="endDateDisplay" class="shamsi-datepicker-display" readonly placeholder="انتخاب کنید">
+                            <input type="hidden" id="endDateInput">
+                        </div>
+                        <div>
+                            <label for="assemblerFilterInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">جستجوی مونتاژکار</label>
+                            <input type="text" id="assemblerFilterInput" class="w-full shamsi-datepicker-display" placeholder="نام را وارد کنید...">
+                        </div>
+                        <div>
+                            <label for="panelTypeFilterSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">فیلتر نوع تابلو</label>
+                            <select id="panelTypeFilterSelect" class="w-full shamsi-datepicker-display"></select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <button id="applyFilterBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-lg flex items-center gap-2 transition-colors"><i class="fas fa-check"></i> اعمال فیلتر</button>
+                        <button id="resetFilterBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-bold py-2 px-5 rounded-lg flex items-center gap-2 transition-colors"><i class="fas fa-eraser"></i> پاک کردن</button>
+                    </div>
+                </div>
+
+                <div id="statsLoader" class="text-center py-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                    <p class="mt-4 text-gray-600 dark:text-gray-400">درحال بارگذاری داده‌ها...</p>
+                </div>
+
+                <div id="statsErrorMessage" class="text-center py-12 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg hidden card">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <p id="statsErrorText"></p>
+                </div>
+
+                <div id="statsMainContent" class="opacity-0 hidden transition-opacity duration-500">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="card p-5 flex items-center gap-5">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-4 rounded-full"><i class="fas fa-layer-group fa-2x"></i></div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">کل تابلوهای مونتاژ شده</p>
+                                <p id="totalPanelsSummary" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="card p-5 flex items-center gap-5">
+                            <div class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-4 rounded-full"><i class="fas fa-users-cog fa-2x"></i></div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">مونتاژکاران فعال</p>
+                                <p id="totalAssemblersSummary" class="text-3xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="card p-5 flex items-center gap-5">
+                            <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 p-4 rounded-full"><i class="fas fa-trophy fa-2x"></i></div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">پرمصرف‌ترین نوع تابلو</p>
+                                <p id="topPanelTypeSummary" class="text-lg font-bold">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+                        <div class="card p-4 lg:col-span-2"><div class="chart-container"><canvas id="assemblerDoughnutChart"></canvas></div></div>
+                        <div class="card p-4 lg:col-span-3"><div class="chart-container"><canvas id="panelBarChart"></canvas></div></div>
+                    </div>
+
+                    <h2 class="text-2xl font-bold mb-4 mt-10">جزئیات عملکرد مونتاژکاران</h2>
+                    <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                    <div id="noResults" class="hidden text-center py-16 card">
+                        <i class="fas fa-box-open fa-3x mb-4 text-gray-400"></i>
+                        <p class="text-gray-500 dark:text-gray-400">هیچ نتیجه‌ای برای فیلترهای انتخاب شده یافت نشد.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Daily Report -->
+            <div id="reportContent" class="hidden">
+                 <div id="viewToggleContainer" class="hidden justify-end items-center mb-4"><label for="viewToggle" class="text-sm font-medium ml-2">نمایش به عنوان:</label><select id="viewToggle" class="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600"><option value="employee">گزارش‌های من</option><option value="supervisor">بررسی گزارش‌ها</option></select></div>
+                <div id="employeeView"><div class="card p-6"><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div><label class="block text-sm font-medium mb-1">نام پرسنل</label><p id="employeeName" class="w-full rounded-lg bg-gray-100 dark:bg-gray-700 shamsi-datepicker-display"></p></div><div><label for="reportDate" class="block text-sm font-medium mb-1">تاریخ گزارش</label><input type="text" id="reportDate" class="w-full rounded-lg shamsi-datepicker-display" readonly></div></div><hr class="dark:border-gray-700"/><div id="reportFormContainer" class="mt-6 hidden"><h3 class="text-lg font-semibold mb-4">فرم گزارش کار</h3><div class="overflow-x-auto"><div id="reportTable"></div></div><div class="flex justify-end mt-6"><button id="submitReportBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg flex items-center gap-2"><i class="fas fa-paper-plane"></i> ارسال گزارش</button></div></div><div id="reportLoader" class="text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-2 text-gray-500">در حال بارگذاری فرم...</p></div></div></div>
+                <div id="supervisorView" class="hidden"><div class="card p-6"><h2 class="text-xl font-semibold mb-4">لیست گزارش‌های ثبت شده</h2><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700"><tr><th class="px-6 py-3">نام پرسنل</th><th class="px-6 py-3">تاریخ گزارش</th><th class="px-6 py-3 text-center">وضعیت</th><th class="px-6 py-3 text-center">عملیات</th></tr></thead><tbody id="supervisorTableBody"></tbody></table><div id="supervisorLoader" class="text-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-2">درحال بارگذاری گزارش‌ها...</p></div><div id="noReports" class="text-center py-10 hidden"><i class="fas fa-folder-open fa-2x text-gray-400"></i><p class="mt-2 text-gray-500">هیچ گزارشی یافت نشد.</p></div></div></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+<div id="reportDetailModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden items-center justify-center p-4 z-50"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col"><div class="p-5 border-b dark:border-gray-700 flex justify-between items-center"><h3 id="modalReportTitle" class="text-xl font-semibold"></h3><button id="closeModalBtn" class="text-gray-500 hover:text-gray-800 dark:hover:text-white text-2xl">&times;</button></div><div id="modalBody" class="p-6 overflow-y-auto"></div><div id="modalFooter" class="p-4 bg-gray-50 dark:bg-gray-900 rounded-b-lg flex flex-col sm:flex-row sm:justify-end gap-3"></div></div></div>
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-[1100]"></div>
+
+<script src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    let currentUser = null;
+
+    // --- API Helper & Auth ---
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(url, { ...options, headers });
+            if (response.status === 401) { logout(); throw new Error('Unauthorized'); }
+            if (response.status === 204) return;
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || `HTTP Error ${response.status}`);
+            return data;
+        },
+        get: (url) => api._fetch(url),
+        post: (url, body) => api._fetch(url, { method: 'POST', body: JSON.stringify(body) }),
+        put: (url, body) => api._fetch(url, { method: 'PUT', body: JSON.stringify(body) })
+    };
+    function checkAuth() { if (!localStorage.getItem('token')) window.location.href = '/login'; }
+    async function fetchCurrentUser() { try { const user = await api.get('/auth/me'); document.getElementById('userName').textContent = user.name; return user; } catch (e) { console.error(e); return null; } }
+    function logout() { localStorage.removeItem('token'); window.location.href = '/login'; }
+
+    // --- UI & Utilities ---
+    const showToast = (message, type = 'info') => {
+        const toastId = 'toast-' + Date.now();
+        const colors = { info: 'bg-blue-500', success: 'bg-green-500', error: 'bg-red-500' };
+        const icon = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-triangle' };
+        const toastHtml = `<div id="${toastId}" class="max-w-xs ${colors[type]} text-white text-sm rounded-lg shadow-lg p-3 flex items-center transition-all duration-300 transform translate-x-full" role="alert"><i class="fas ${icon[type]} ml-2"></i><span>${message}</span></div>`;
+        document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+        setTimeout(() => document.getElementById(toastId)?.classList.remove('translate-x-full'), 100);
+        setTimeout(() => { const t = document.getElementById(toastId); if(t) { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); }}, 4500);
+    };
+    function setupThemeToggle() {
+        const themeToggleBtn = document.getElementById('theme-toggle'), darkIcon = document.getElementById('theme-toggle-dark-icon'), lightIcon = document.getElementById('theme-toggle-light-icon');
+        if (themeToggleBtn) {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); lightIcon.classList.remove('hidden'); darkIcon.classList.add('hidden'); }
+            themeToggleBtn.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); darkIcon.classList.toggle('hidden'); lightIcon.classList.toggle('hidden'); localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'; if (window.activeTab === 'stats' && typeof renderCharts === 'function') { const stats = window.currentStatsForThemeChange; if (stats) renderCharts(stats); }});
+        }
+    }
+    function setupSidebar(userRole, currentPagePath) {
+        const supervisorLinks = document.querySelectorAll('.supervisor-only');
+        if (userRole === 'supervisor') { supervisorLinks.forEach(link => link.style.display = 'block'); }
+        const navLinks = document.querySelectorAll('.nav-link-item');
+        navLinks.forEach(link => {
+            link.classList.remove('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+            link.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            const icon = link.querySelector('i');
+            if (icon) icon.classList.remove('text-blue-600');
+            if (link.getAttribute('href') === currentPagePath) {
+                link.classList.add('text-gray-700', 'dark:text-white', 'bg-blue-50', 'dark:bg-blue-900/50', 'font-semibold');
+                if (icon) icon.classList.add('text-blue-600');
+            }
+        });
+    }
+
+    // --- Tab Management ---
+    const statsTab = document.getElementById('statsTab'), reportTab = document.getElementById('reportTab'), statsContent = document.getElementById('statsContent'), reportContent = document.getElementById('reportContent');
+    let isReportModuleInitialized = false; window.activeTab = 'stats';
+    function switchTab(tabName) {
+        window.activeTab = tabName;
+        statsTab.classList.toggle('active', tabName === 'stats'); reportTab.classList.toggle('active', tabName === 'report');
+        statsContent.style.display = tabName === 'stats' ? 'block' : 'none'; reportContent.style.display = tabName === 'report' ? 'block' : 'none';
+        if (tabName === 'report' && !isReportModuleInitialized) { reportModule.initialize(); isReportModuleInitialized = true; }
+    }
+    statsTab.addEventListener('click', () => switchTab('stats')); reportTab.addEventListener('click', () => switchTab('report'));
+
+    // ======================== STATS MODULE ========================
+    const statsModule = (() => {
+        let fullStats = {}; let isUiSetup = false; let assemblerDoughnutChart, panelBarChart;
+        const panelTypeMap = { "FAHAM_WITH_FRAME": "فهام با قاب", "FAHAM_WITHOUT_FRAME": "فهام بدون قاب", "ID2R": "ID2R", "ID5R": "ID5R", "ID116": "ID116", "ID6_1R": "ID6+1R", "ID12_1R": "ID12+1R", "ID18_1R": "ID18+1R", "ID24_1R": "ID24+1R", "ID101_1": "ID101.1", "ID101_3": "ID101.3", "ID102_1": "ID102.1", "ID102_3": "ID102.3", "ID104_1": "ID104.1", "ID104_3": "ID104.3", "ID105": "ID105", "ID107": "ID107", "ID115": "ID115", "ID108": "ID108", "ID109": "ID109", "ID110": "ID110", "ID111": "ID111", "ID112_STAR": "ID112*", "ID120": "ID120", "ID121": "ID121", "ID122": "ID122", "ID123": "ID123", "ID124_STAR": "ID124*", "ID211": "ID211", "ID212": "ID212", "ID213": "ID213", "ID214": "ID214", "ID215": "ID215", "ID216": "ID216", "ID218": "ID218" };
+        const DOM = {};
+
+        function initializeDOM() {
+            const ids = ["statsLoader", "statsMainContent", "statsErrorMessage", "statsErrorText", "noResults", "startDateInput", "endDateInput", "startDateDisplay", "endDateDisplay", "assemblerFilterInput", "panelTypeFilterSelect", "applyFilterBtn", "resetFilterBtn", "assemblerDoughnutChart", "panelBarChart", "resultsContainer", "totalPanelsSummary", "totalAssemblersSummary", "topPanelTypeSummary"];
+            ids.forEach(id => DOM[id] = document.getElementById(id));
+        }
+
+        const getPanelName = (key) => panelTypeMap[key] || key;
+        const toGregorian = (unix) => unix ? new Date(unix).toISOString().split('T')[0] : '';
+        const debounce = (fn, ms = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; };
+
+        function showError(message) {
+            DOM.statsErrorText.textContent = message;
+            DOM.statsErrorMessage.classList.remove('hidden');
+            DOM.statsLoader.classList.add('hidden');
+            DOM.statsMainContent.classList.add('opacity-0', 'hidden');
+        }
+
+        function setupUI() {
+            if (isUiSetup) return;
+            const datePickerOptions = {
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                onSelect: function(unix) {
+                    document.getElementById(this.inputElement.id === 'startDateDisplay' ? 'startDateInput' : 'endDateInput').value = toGregorian(unix);
+                }
+            };
+            $("#startDateDisplay").persianDatepicker(datePickerOptions);
+            $("#endDateDisplay").persianDatepicker(datePickerOptions);
+            DOM.assemblerFilterInput.addEventListener('input', debounce(applyLocalFiltersAndRender, 300));
+            DOM.panelTypeFilterSelect.addEventListener('change', applyLocalFiltersAndRender);
+            DOM.applyFilterBtn.addEventListener('click', fetchData);
+            DOM.resetFilterBtn.addEventListener('click', () => {
+                $("#startDateDisplay, #endDateDisplay").pDatepicker("clear");
+                DOM.startDateInput.value = '';
+                DOM.endDateInput.value = '';
+                DOM.assemblerFilterInput.value = '';
+                DOM.panelTypeFilterSelect.selectedIndex = 0;
+                fetchData();
+            });
+            isUiSetup = true;
+        }
+
+        function populatePanelFilter() {
+            const allPanelKeys = new Set(Object.values(fullStats).flatMap(d => Object.keys(d.panels_by_type)));
+            const currentSelection = DOM.panelTypeFilterSelect.value;
+            DOM.panelTypeFilterSelect.innerHTML = '<option value="">همه انواع</option>';
+            [...allPanelKeys].sort().forEach(key => {
+                DOM.panelTypeFilterSelect.add(new Option(getPanelName(key), key));
+            });
+            DOM.panelTypeFilterSelect.value = currentSelection;
+        }
+
+        async function fetchData() {
+            DOM.statsLoader.classList.remove('hidden');
+            DOM.statsMainContent.classList.add('opacity-0', 'hidden');
+            DOM.statsErrorMessage.classList.add('hidden');
+            
+            const params = new URLSearchParams();
+            if (DOM.startDateInput.value) params.append('start_date', DOM.startDateInput.value);
+            if (DOM.endDateInput.value) params.append('end_date', DOM.endDateInput.value);
+
+            try {
+                const allStats = await api.get(`/reports/assembler-stats/?${params.toString()}`);
+                
+                // === START OF MODIFICATION ===
+                // شرط فیلتر کردن بر اساس نقش کاربر حذف شد.
+                // حالا 'fullStats' همیشه حاوی آمار همه افراد است.
+                fullStats = allStats;
+                DOM.assemblerFilterInput.disabled = false; // فیلتر برای همه فعال است
+                // === END OF MODIFICATION ===
+
+                if (!isUiSetup) setupUI();
+                populatePanelFilter();
+                applyLocalFiltersAndRender();
+            
+            } catch (err) {
+                showError("خطا در دریافت داده‌ها: " + err.message);
+            } finally {
+                DOM.statsLoader.classList.add('hidden');
+            }
+        }
+
+        function applyLocalFiltersAndRender() {
+            const nameFilter = DOM.assemblerFilterInput.value.trim().toLowerCase();
+            const typeFilter = DOM.panelTypeFilterSelect.value;
+            const finalStats = {};
+
+            for (const [assembler, data] of Object.entries(fullStats)) {
+                if (!nameFilter || assembler.toLowerCase().includes(nameFilter)) {
+                    if (typeFilter) {
+                        if (data.panels_by_type[typeFilter]) {
+                            const count = data.panels_by_type[typeFilter];
+                            finalStats[assembler] = { total_panels: count, panels_by_type: { [typeFilter]: count } };
+                        }
+                    } else {
+                        finalStats[assembler] = data;
+                    }
+                }
+            }
+            render(finalStats);
+        }
+
+        function render(stats) {
+            window.currentStatsForThemeChange = stats; // For theme change
+            DOM.statsMainContent.classList.remove('hidden');
+            setTimeout(() => DOM.statsMainContent.classList.remove('opacity-0'), 10);
+            updateSummaryCards(stats);
+            renderCharts(stats);
+            renderCards(stats);
+            const hasResults = Object.keys(stats).length > 0;
+            DOM.resultsContainer.style.display = hasResults ? 'grid' : 'none';
+            DOM.noResults.style.display = hasResults ? 'none' : 'block';
+        }
+
+        function updateSummaryCards(stats) {
+            const totalPanels = Object.values(stats).reduce((sum, data) => sum + data.total_panels, 0);
+            const panelCounts = {};
+            Object.values(stats).forEach(data => 
+                Object.entries(data.panels_by_type).forEach(([type, count]) => 
+                    panelCounts[type] = (panelCounts[type] || 0) + count
+                )
+            );
+            const topPanel = Object.entries(panelCounts).sort((a, b) => b[1] - a[1])[0];
+            DOM.totalPanelsSummary.textContent = totalPanels.toLocaleString('fa-IR');
+            DOM.totalAssemblersSummary.textContent = Object.keys(stats).length.toLocaleString('fa-IR');
+            DOM.topPanelTypeSummary.textContent = topPanel ? getPanelName(topPanel[0]) : '-';
+        }
+
+        window.renderCharts = function(stats) {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const chartTextColor = isDarkMode ? '#e5e7eb' : '#374151';
+            const chartGridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            Chart.defaults.color = chartTextColor;
+            Chart.defaults.font.family = "Vazirmatn";
+
+            const pieLabels = Object.keys(stats);
+            const colors = pieLabels.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 55%)`);
+            if (assemblerDoughnutChart) assemblerDoughnutChart.destroy();
+            if(pieLabels.length > 0) assemblerDoughnutChart = new Chart(DOM.assemblerDoughnutChart, {
+                type: 'doughnut',
+                data: { labels: pieLabels, datasets: [{ data: Object.values(stats).map(d => d.total_panels), backgroundColor: colors, borderColor: isDarkMode ? '#1f2937' : '#fff', borderWidth: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { title: { display: true, text: 'سهم مونتاژکاران', font: { size: 16 } }, legend: { display: false } } }
+            });
+
+            const panelCounts = {};
+            Object.values(stats).forEach(d => Object.entries(d.panels_by_type).forEach(([t, c]) => panelCounts[t] = (panelCounts[t] || 0) + c));
+            const sortedPanels = Object.entries(panelCounts).sort((a, b) => b[1] - a[1]).slice(0, 7);
+            const barLabels = sortedPanels.map(([t]) => getPanelName(t));
+            if (panelBarChart) panelBarChart.destroy();
+            if(barLabels.length > 0) panelBarChart = new Chart(DOM.panelBarChart, {
+                type: 'bar',
+                data: { labels: barLabels, datasets: [{ data: sortedPanels.map(([, c]) => c), backgroundColor: barLabels.map((_, i) => `hsl(${(i * 137.508) % 360}, 65%, 55%)`), borderRadius: 5 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'آمار انواع تابلو (۷ مورد برتر)', font: { size: 16 } }, legend: { display: false } }, scales: { y: { grid: { color: chartGridColor } }, x: { grid: { display: false } } } }
+            });
+        }
+        
+        function renderCards(stats) {
+            DOM.resultsContainer.innerHTML = "";
+            const sortedAssemblers = Object.entries(stats).sort((a, b) => b[1].total_panels - a[1].total_panels);
+            sortedAssemblers.forEach(([name, data]) => {
+                const panelsHtml = Object.entries(data.panels_by_type).sort((a, b) => b[1] - a[1]).map(([type, count]) => {
+                    const pct = data.total_panels > 0 ? ((count / data.total_panels) * 100).toFixed(0) : 0;
+                    return `<div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600 dark:text-gray-400">${getPanelName(type)}</span>
+                                    <span class="font-semibold">${count.toLocaleString('fa-IR')} عدد (${pct}%)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                                    <div class="bg-indigo-600 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                                </div>
+                            </div>`;
+                }).join("");
+
+                const card = document.createElement("div");
+                card.className = "card flex flex-col";
+                card.innerHTML = `
+                    <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full h-14 w-14 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user-hard-hat fa-2x"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">${name}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">مجموع: <span class="font-semibold text-indigo-600 dark:text-indigo-400 text-base">${data.total_panels.toLocaleString('fa-IR')} تابلو</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-grow bg-gray-50/50 dark:bg-gray-800/50 rounded-b-xl">
+                        <h4 class="font-semibold text-sm mb-4 text-gray-500 dark:text-gray-400">تفکیک نوع تابلو:</h4>
+                        ${panelsHtml || '<p class="text-center text-gray-400 text-sm">داده‌ای برای نمایش وجود ندارد.</p>'}
+                    </div>`;
+                DOM.resultsContainer.appendChild(card);
+            });
+        }
+
+        return { initialize: () => { initializeDOM(); fetchData(); } };
+    })();
+
+    // ======================== REPORT MODULE ========================
+    const reportModule = (() => {
+        const DOM = {}; let reportConfig = null; let datepicker = null;
+        function initializeDOM() {
+            const ids = ["viewToggleContainer", "viewToggle", "employeeView", "supervisorView", "employeeName", "reportDate", "reportFormContainer", "reportLoader", "reportTable", "submitReportBtn", "supervisorTableBody", "supervisorLoader", "noReports", "reportDetailModal", "modalReportTitle", "modalBody", "modalFooter", "closeModalBtn"];
+            ids.forEach(id => DOM[id] = document.getElementById(id));
+        }
+        function buildReportTable(config, data = {}, isReadonly = false) {
+            let tableHtml = `<div class="space-y-6">`;
+            config.rows.forEach((row, rowIndex) => {
+                let contentHtml = '';
+                if (row.type === 'checkbox') {
+                    const key = `R${rowIndex}_I0`;
+                    contentHtml = `<div class="flex items-center"><input type="checkbox" data-key="${key}" class="h-5 w-5 rounded" ${data[key] ? 'checked' : ''} ${isReadonly ? 'disabled' : ''}></div>`;
+                } else if (row.type === 'checkbox_group_with_values') {
+                    contentHtml = `<div class="flex flex-wrap gap-x-6 gap-y-2">`;
+                    row.items.forEach((item, itemIndex) => { const key = `R${rowIndex}_I${itemIndex}`; contentHtml += `<label class="flex items-center gap-2"><input type="checkbox" data-key="${key}" class="h-4 w-4 rounded" ${data[key] ? 'checked' : ''} ${isReadonly ? 'disabled' : ''}><span>${item.label} (${item.value}%)</span></label>`; });
+                    contentHtml += `</div>`;
+                } else if (row.items) {
+                    contentHtml = `<div class="flex flex-wrap items-center justify-start gap-x-6 gap-y-3">`;
+                    row.items.forEach((item, itemIndex) => { if (item) { const key = `R${rowIndex}_I${itemIndex}`; contentHtml += `<div class="text-center"><label class="block text-xs mb-1">${item.label}</label><input type="number" class="table-input" data-key="${key}" value="${data[key] || ''}" ${isReadonly ? 'readonly' : ''}></div>`; } });
+                    contentHtml += `</div>`;
+                }
+                tableHtml += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-b dark:border-gray-700 pb-4"><div class="font-semibold col-span-1">${row.title}</div><div class="col-span-2">${contentHtml}</div></div>`;
+            });
+            return tableHtml + '</div>';
+        }
+		async function submitReport() {
+			if (!datepicker || !datepicker.getState().selected) return showToast('لطفا تاریخ گزارش را انتخاب کنید.', 'error');
+			const selectedDate = new persianDate(datepicker.getState().selected.unixDate), gregorianDate = selectedDate.toDate();
+			const reportDate = `${gregorianDate.getFullYear()}-${('0' + (gregorianDate.getMonth() + 1)).slice(-2)}-${('0' + gregorianDate.getDate()).slice(-2)}`;
+			const reportData = {};
+			document.querySelectorAll('#reportTable input').forEach(input => { const key = input.dataset.key; if (!key) return; if (input.type === 'number') { const value = input.value.trim(); if (value !== '') { const pVal = parseInt(value, 10); if (!isNaN(pVal)) reportData[key] = pVal; } } else if (input.type === 'checkbox' && input.checked) { reportData[key] = 1; } });
+			if (Object.keys(reportData).length === 0) return showToast('فرم گزارش خالی است. لطفا حداقل یک مورد را پر کنید.', 'error');
+			DOM.submitReportBtn.disabled = true; DOM.submitReportBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+			try { await api.post(`/daily-reports/`, { personnel_id: currentUser.id, report_date: reportDate, report_data: reportData }); showToast('گزارش با موفقیت ثبت شد.', 'success'); document.querySelectorAll('#reportTable input').forEach(input => { if (input.type === 'number') input.value = ''; else if (input.type === 'checkbox') input.checked = false; }); } catch (error) { showToast(`خطا در ثبت گزارش: ${error.message}`, 'error'); } finally { DOM.submitReportBtn.disabled = false; DOM.submitReportBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ارسال گزارش`; }
+		}		
+        async function fetchEmployeeReports() {
+            DOM.supervisorLoader.style.display = 'block'; DOM.noReports.style.display = 'none'; DOM.supervisorTableBody.innerHTML = '';
+            try { renderSupervisorTable(await api.get('/daily-reports/my-reports')); } catch(e) { /* handle error */ }
+        }
+        async function fetchAllReports() {
+            DOM.supervisorLoader.style.display = 'block'; DOM.noReports.style.display = 'none'; DOM.supervisorTableBody.innerHTML = '';
+            try { renderSupervisorTable(await api.get('/daily-reports/all')); } catch (e) { DOM.supervisorTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">خطا در بارگذاری گزارش‌ها</td></tr>'; } finally { DOM.supervisorLoader.style.display = 'none'; }
+        }
+        function renderSupervisorTable(reports) {
+            if (reports.length === 0) return DOM.noReports.style.display = 'block';
+            DOM.supervisorTableBody.innerHTML = reports.map(r => {
+                const statusMap = { submitted: 'status-submitted', approved: 'status-approved', rejected: 'status-rejected' }; const statusTextMap = { submitted: 'ارسال شده', approved: 'تایید شده', rejected: 'رد شده' };
+                return `<tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-6 py-4">${r.personnel.name}</td><td class="px-6 py-4">${new persianDate(new Date(r.report_date)).format('YYYY/MM/DD')}</td><td class="px-6 py-4 text-center"><span class="px-3 py-1 text-xs font-medium rounded-full ${statusMap[r.status]}">${statusTextMap[r.status]}</span></td><td class="px-6 py-4 text-center"><button data-id="${r.id}" class="view-report-btn font-medium text-indigo-600 dark:text-indigo-400 hover:underline">مشاهده</button></td></tr>`;
+            }).join('');
+        }
+        async function viewReportDetail(report) {
+            if (!reportConfig) reportConfig = await api.get('/daily-reports/config');
+            DOM.modalReportTitle.textContent = `گزارش ${report.personnel.name} - ${new persianDate(new Date(report.report_date)).format('YYYY/MM/DD')}`;
+            DOM.modalBody.innerHTML = buildReportTable(reportConfig, report.report_data, true);
+            DOM.modalFooter.innerHTML = '';
+            if (currentUser.role === 'supervisor' && report.status === 'submitted') {
+                DOM.modalFooter.innerHTML = `<textarea id="supervisorNotes" class="w-full sm:w-1/2 p-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600" rows="2" placeholder="یادداشت ناظر (برای رد کردن الزامی است)..."></textarea><button id="rejectBtn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg">رد کردن</button><button id="approveBtn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg">تایید نهایی</button>`;
+                document.getElementById('approveBtn').onclick = () => handleApproval(report.id, 'approve');
+                document.getElementById('rejectBtn').onclick = () => handleApproval(report.id, 'reject');
+            }
+            DOM.reportDetailModal.classList.remove('hidden'); DOM.reportDetailModal.classList.add('flex');
+        }
+        async function handleApproval(reportId, action) {
+            const notes = document.getElementById('supervisorNotes')?.value.trim();
+            if (action === 'reject' && !notes) return showToast('برای رد کردن گزارش، نوشتن یادداشت الزامی است.', 'error');
+            const btn = document.getElementById(`${action}Btn`);
+            btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            try { await api.put(`/daily-reports/${reportId}/${action}`, { supervisor_notes: notes }); showToast(`گزارش با موفقیت ${action === 'approve' ? 'تایید' : 'رد'} شد.`, 'success'); closeModal(); fetchAllReports(); } catch (error) { showToast(error.message, 'error'); } finally { btn.disabled = false; btn.textContent = action === 'approve' ? 'تایید نهایی' : 'رد کردن'; }
+        }
+        function closeModal() { DOM.reportDetailModal.classList.add('hidden'); DOM.reportDetailModal.classList.remove('flex'); }
+        async function switchView(view) {
+            DOM.employeeView.style.display = view === 'employee' ? 'block' : 'none'; DOM.supervisorView.style.display = view === 'supervisor' ? 'block' : 'none';
+            if (view === 'employee') {
+                DOM.employeeName.textContent = currentUser.name;
+                if (!reportConfig) { DOM.reportLoader.style.display = 'block'; DOM.reportFormContainer.style.display = 'none'; reportConfig = await api.get('/daily-reports/config'); DOM.reportTable.innerHTML = buildReportTable(reportConfig); DOM.reportLoader.style.display = 'none'; DOM.reportFormContainer.style.display = 'block'; }
+            } else { await fetchAllReports(); }
+        }
+        return {
+            initialize: async () => {
+                initializeDOM(); datepicker = $("#reportDate").persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, initialValue: true });
+                if (currentUser.role === 'supervisor') {
+                    DOM.viewToggleContainer.style.display = 'flex';
+                    DOM.viewToggle.addEventListener('change', (e) => switchView(e.target.value));
+                    await switchView('employee'); // Start with employee view for self-report
+                } else { await switchView('employee'); }
+                DOM.submitReportBtn.addEventListener('click', submitReport);
+                DOM.supervisorTableBody.addEventListener('click', async e => { if (e.target.classList.contains('view-report-btn')) { const reportId = e.target.dataset.id; const reports = await api.get('/daily-reports/all'); const report = reports.find(r => r.id == reportId); if(report) viewReportDetail(report); } });
+                DOM.closeModalBtn.addEventListener('click', closeModal);
+                DOM.reportDetailModal.addEventListener('click', e => { if (e.target === DOM.reportDetailModal) closeModal(); });
+            }
+        };
+    })();
+
+    // --- Main Initialization ---
+    async function main() {
+        checkAuth();
+        currentUser = await fetchCurrentUser();
+        
+        if (!currentUser) return; // Stop if user data fails to load
+
+        setupThemeToggle();
+        setupSidebar(currentUser.role, window.location.pathname);
+        
+        document.getElementById('user-menu-button').addEventListener('click', () => document.getElementById('user-menu').classList.toggle('hidden'));
+        document.getElementById('logoutButton').addEventListener('click', logout);
+        
+        statsModule.initialize();
+    }
+    
+    main();
+});
+</script>
+</body>
+</html>

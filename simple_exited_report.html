@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش ساده پروژه‌های خارج شده</title>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('/static/Vazirmatn-regular.ttf'); }
+        @page { size: A4; margin: 1.5cm; }
+        @media print { 
+            body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+            .no-print { display: none; }
+        }
+        body { font-family: 'Vazirmatn', sans-serif; font-size: 11pt; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 16pt; margin: 0; }
+        .report-date { text-align: left; font-size: 10pt; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; vertical-align: middle; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .customer-name { text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>شرکت فرداد سازه گلشن</h1>
+        <h2>گزارش پروژه‌های خارج شده</h2>
+    </div>
+    <div class="report-date">تاریخ گزارش: {{ report_date_jalali }}</div>
+    <table>
+        <thead>
+            <tr>
+                <th>ردیف</th>
+                <th class="customer-name">نام و نام خانوادگی</th>
+                <th>شماره تقاضا</th>
+                <th>کد تابلو</th>
+                <th>تاریخ و ساعت خروج</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td class="customer-name">{{ p.customer_name }}</td>
+                <td>{{ p.request_id }}</td>
+                <td>{{ p.panel_code or p.panel_type_key or '-' }}</td>
+                <td>{{ p.exit_time_str }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">هیچ پروژه‌ای در این تاریخ خارج نشده است.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script class="no-print">
+        window.onload = function() {
+            setTimeout(function() { window.print(); }, 500);
+        };
+    </script>
+</body>
+</html>

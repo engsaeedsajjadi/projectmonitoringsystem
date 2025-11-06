@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>داشبورد مانیتورینگ پروژه</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    
+    <style>
+        @font-face { 
+            font-family: 'Vazirmatn'; 
+            src: url('/static/Vazirmatn-regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        html.dark { color-scheme: dark; }
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #f7f8fc; }
+        html.dark body { background-color: #0d1117; color: #c9d1d9; }
+        
+        .card { 
+            background: white; 
+            border-radius: 1rem; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        html.dark .card { background-color: #161b22; border: 1px solid #30363d; }
+        
+        .nav-link-item { transition: all 0.2s ease-in-out; }
+        
+        .shamsi-datepicker-display { background-color: #fff; border: 1px solid #e5e7eb; width: 100%; padding: 0.625rem 1rem; border-radius: 9999px; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-main { background-color: #161b22; border-color: #30363d; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-display { background-color: #0d1117; border-color: #30363d; color: #c9d1d9; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .cell.today { background-color: #58a6ff !important; color: #161b22 !important; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .cell:hover { background-color: #30363d; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .cell.selected { background-color: #2563eb !important; }
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .header .month, 
+        html.dark .shamsi-datepicker-container .shamsi-datepicker-calendar .header .year { color: #c9d1d9; }
+
+        .tab-btn.active { color: #1e40af; font-weight: 700; }
+        html.dark .tab-btn.active { color: #58a6ff; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; width: 100%; height: 3px; background-color: #2563eb; border-radius: 3px 3px 0 0; }
+        
+        .card-highlight-ws { animation: highlight-pulse 2s ease-out; }
+        @keyframes highlight-pulse { 0%, 100% { background-color: inherit; } 50% { background-color: #ecfccb; } }
+        html.dark .card-highlight-ws { animation: highlight-pulse-dark 2s ease-out; }
+        @keyframes highlight-pulse-dark { 0%, 100% { background-color: inherit; } 50% { background-color: #224b31; } }
+
+        .chart-container { position: relative; height: 320px; }
+        @media (max-width: 768px) { .chart-container { height: 280px; } }
+
+        .loading-skeleton { 
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 0.375rem;
+            color: transparent !important;
+        }
+        html.dark .loading-skeleton { background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%); background-size: 200% 100%; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .modal-backdrop { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        html.dark ::-webkit-scrollbar-track { background: #374151; }
+        html.dark ::-webkit-scrollbar-thumb { background: #6b7280; }
+        html.dark ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    </style>
+    <script>
+        tailwind.config = { 
+            darkMode: 'class', 
+            theme: { 
+                extend: { 
+                    fontFamily: { 'vazir': ['Vazirmatn', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                } 
+            } 
+        }
+    </script>
+</head>
+<body class="text-gray-700 dark:text-gray-300">
+
+<div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <!-- Sidebar -->
+    <aside class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-l dark:border-gray-700 shadow-sm hidden lg:block">
+        <div class="flex flex-col h-full">
+            <div class="h-16 flex items-center justify-center border-b dark:border-gray-700 px-4">
+                <i class="fas fa-cogs text-blue-600 text-2xl"></i>
+                <span class="ml-3 font-bold text-xl text-gray-800 dark:text-white">سیستم مانیتورینگ</span>
+            </div>
+            <!-- ✅ بهبود: محتوای سایدبار توسط جاوااسکریپت به صورت داینامیک پر می‌شود -->
+            <nav id="sidebar-nav" class="flex-1 px-4 py-6 space-y-2 text-sm"></nav>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between px-6 flex-shrink-0">
+            <h1 class="text-xl font-semibold text-gray-800 dark:text-white">داشبورد مدیریتی</h1>
+            <div class="flex items-center gap-4">
+                <!-- ✅ اصلاح: آیدی‌ها به camelCase تغییر کردند -->
+                <button id="themeToggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-moon" id="themeToggleDarkIcon"></i>
+                    <i class="fas fa-sun hidden" id="themeToggleLightIcon"></i>
+                </button>
+                <div class="h-8 border-r border-gray-200 dark:border-gray-600"></div>
+                <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <span id="userName" class="font-semibold text-sm">در حال بارگذاری...</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="user-menu" class="hidden absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 py-1 z-20">
+                        <a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-sign-out-alt ml-2"></i>خروج از حساب
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <!-- کارت‌های آمار -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+                <div class="card p-5 flex items-center gap-5">
+                    <div class="bg-blue-100 dark:bg-blue-900/50 text-blue-500 dark:text-blue-400 rounded-full p-4 flex-shrink-0">
+                        <i class="fa fa-layer-group fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">کل پروژه‌ها</div>
+                        <div id="statTotalProjects" class="text-3xl font-bold text-gray-800 dark:text-white loading-skeleton">...</div>
+                    </div>
+                </div>
+                
+                <div class="card p-5 flex items-center gap-5">
+                    <div class="bg-green-100 dark:bg-green-900/50 text-green-500 dark:text-green-400 rounded-full p-4 flex-shrink-0">
+                        <i class="fa fa-calendar-check fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">تکمیل شده (این ماه)</div>
+                        <div id="statCompletedMonth" class="text-3xl font-bold text-green-500 dark:text-green-400 loading-skeleton">...</div>
+                    </div>
+                </div>
+                
+                <div class="card p-5 flex items-center gap-5">
+                    <div class="bg-purple-100 dark:bg-purple-900/50 text-purple-500 dark:text-purple-400 rounded-full p-4 flex-shrink-0">
+                        <i class="fa fa-hourglass-half fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">میانگین زمان تکمیل</div>
+                        <div id="statAvgTime" class="text-3xl font-bold text-purple-500 dark:text-purple-400 loading-skeleton">...</div>
+                    </div>
+                </div>
+                
+                <div class="card p-5 flex items-center gap-5">
+                    <div class="bg-red-100 dark:bg-red-900/50 text-red-500 dark:text-red-400 rounded-full p-4 flex-shrink-0">
+                        <i class="fa fa-traffic-light fa-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">گلوگاه اصلی</div>
+                        <div id="statBottleneck" class="text-xl font-bold text-red-500 dark:text-red-400 loading-skeleton">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فیلترها -->
+            <div class="card p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 items-center">
+                    <div class="xl:col-span-2">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <input type="text" id="mainSearchInput" placeholder="جستجو در پروژه‌ها..." 
+                                   class="w-full py-2.5 pr-10 pl-4 border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition bg-transparent">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <select id="stageFilter" class="w-full py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition bg-transparent">
+                            <option value="all">همه مراحل</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <input type="text" id="startDateDisplay" placeholder="از تاریخ" class="shamsi-datepicker-display" readonly>
+                        <input type="hidden" id="startDateInput">
+                    </div>
+                    
+                    <div>
+                        <input type="text" id="endDateDisplay" placeholder="تا تاریخ" class="shamsi-datepicker-display" readonly>
+                        <input type="hidden" id="endDateInput">
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button id="filterBtn" class="w-full bg-blue-600 text-white px-4 py-2.5 rounded-full hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                            <i class="fas fa-filter"></i>
+                            <span>اعمال فیلتر</span>
+                        </button>
+                        <button id="clearFilterBtn" class="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- نمودارها -->
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+                <div class="card lg:col-span-2 p-5 flex flex-col">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">پروژه‌ها بر اساس وضعیت کلی</h3>
+                    <div class="chart-container flex-grow">
+                        <canvas id="projectsByStatusChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card lg:col-span-3 p-5 flex flex-col">
+                    <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">تعداد تابلوها بر اساس نوع</h3>
+                    <div class="chart-container flex-grow">
+                        <canvas id="projectsByPanelTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لیست پروژه‌ها -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
+                <div class="border-b border-gray-200 dark:border-gray-700">
+                    <nav id="projectTabs" class="flex space-x-8 space-x-reverse px-6" aria-label="Tabs">
+                        <button data-tab="in-progress" class="tab-btn relative whitespace-nowrap py-4 px-1 text-base font-medium active">
+                            در حال اجرا
+                        </button>
+                        <button data-tab="not-started" class="tab-btn relative whitespace-nowrap py-4 px-1 text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                            شروع نشده
+                        </button>
+                        <button data-tab="completed" class="tab-btn relative whitespace-nowrap py-4 px-1 text-base font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                            تکمیل شده
+                        </button>
+                    </nav>
+                </div>
+                
+                <div id="tab-panels" class="p-4 sm:p-6">
+                    <div id="loadingMessage" class="text-center p-8 flex items-center justify-center flex-col">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
+                        <p class="text-gray-500 dark:text-gray-400">درحال بارگذاری لیست پروژه‌ها...</p>
+                    </div>
+                    
+                    <div id="panel-in-progress" class="tab-panel grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                    <div id="panel-not-started" class="tab-panel hidden grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                    <div id="panel-completed" class="tab-panel hidden grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                    
+                    <div id="no-results-message" class="text-center text-gray-500 dark:text-gray-400 p-8 hidden">
+                        <i class="fas fa-search fa-2x mb-3 opacity-50"></i>
+                        <p>موردی یافت نشد.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal جزئیات پروژه -->
+<div id="projectModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/50 modal-backdrop opacity-0 transition-opacity duration-300"></div>
+    <div id="modalContent" class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col modal-content opacity-0 transform scale-95 transition-all duration-300">
+        <div class="flex items-center justify-between p-6 border-b dark:border-gray-700 flex-shrink-0">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 dark:text-white">جزئیات پروژه</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl font-bold transition-colors">
+                &times;
+            </button>
+        </div>
+        
+        <div id="modalBody" class="p-6 overflow-y-auto flex-1" style="scrollbar-width: thin;"></div>
+        
+        <div class="p-6 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-700 flex-shrink-0">
+            <h4 class="font-semibold mb-3 text-gray-800 dark:text-white">ثبت کامنت جدید</h4>
+            <form id="commentForm" class="flex items-start gap-3">
+                <input type="hidden" id="commentProjectId">
+                <textarea id="commentText" class="flex-1 p-3 border dark:border-gray-600 bg-transparent rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-none" 
+                          rows="3" placeholder="نظر خود را بنویسید..."></textarea>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    ارسال
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed bottom-4 right-4 space-y-3 z-[100]"></div>
+
+<script src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ========== Constants & State ==========
+    const ALL_STEP_DEFINITIONS = {
+        "START_ASSEMBLY": "شروع مونتاژ", "END_ASSEMBLY": "پایان مونتاژ", "TEAM_LEAD_APPROVAL": "تایید سرگروه",
+        "TEST": "تست سماک", "QUALITY_CONTROL": "کنترل کیفیت", "SUPERVISOR_APPROVAL": "تأیید ناظر", "EXIT_PANEL": "خروج تابلو"
+    };
+    const ORDERED_STEP_KEYS = ["START_ASSEMBLY", "END_ASSEMBLY", "TEAM_LEAD_APPROVAL", "TEST", "QUALITY_CONTROL", "SUPERVISOR_APPROVAL"];
+    const TOTAL_STEPS_COUNT = ORDERED_STEP_KEYS.length + 1;
+    const THREE_DAYS_IN_MS = 3 * 24 * 60 * 60 * 1000;
+    
+    let allProjectsCache = [];
+    let charts = {};
+    let currentUser = null;
+
+    // ========== DOM Elements Cache ==========
+    const DOM = {};
+    const domIds = [
+        "statTotalProjects", "statCompletedMonth", "statAvgTime", "statBottleneck",
+        "mainSearchInput", "stageFilter", "startDateInput", "endDateInput", "startDateDisplay", "endDateDisplay",
+        "filterBtn", "clearFilterBtn", "loadingMessage", "no-results-message",
+        "panel-in-progress", "panel-not-started", "panel-completed", "projectTabs",
+        "themeToggle", "themeToggleDarkIcon", "themeToggleLightIcon",
+        "userName", "user-menu-button", "user-menu", "logoutButton", "supervisorSection",
+        "projectModal", "modalBackdrop", "modalContent", "modalTitle", "modalBody", "closeModalBtn",
+        "commentForm", "commentProjectId", "commentText", "sidebar-nav"
+    ];
+    domIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            const camelCaseId = id.replace(/-([a-z])/g, g => g[1].toUpperCase());
+            DOM[camelCaseId] = element;
+        }
+    });
+    DOM.panels = {
+        inProgress: document.getElementById('panel-in-progress'),
+        notStarted: document.getElementById('panel-not-started'),
+        completed: document.getElementById('panel-completed')
+    };
+
+    // ========== API Helper ==========
+    const api = {
+        _fetch: async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
+            if (token) { headers['Authorization'] = `Bearer ${token}`; }
+            try {
+                const response = await fetch(url, { ...options, headers });
+                if (response.status === 401 || response.status === 403) { logout(); throw new Error('دسترسی غیرمجاز'); }
+                if (!response.ok) { throw new Error(`خطای سرور: ${response.status}`); }
+                if (response.status === 204) { return null; }
+                const contentType = response.headers.get("content-type");
+                return contentType && contentType.includes("application/json") ? response.json() : response.text();
+            } catch (error) {
+                console.error('❌ خطای API:', error);
+                showToast('خطا در ارتباط', 'اتصال به سرور با مشکل مواجه شد.', true);
+                throw error;
+            }
+        },
+        get: (url) => api._fetch(url),
+        post: (url, body) => api._fetch(url, { method: 'POST', body: JSON.stringify(body) })
+    };
+
+    // ========== Authentication ==========
+    function checkAuth() {
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/login';
+            return false;
+        }
+        return true;
+    }
+    async function fetchCurrentUser() {
+        try {
+            const user = await api.get('/auth/me');
+            DOM.userName.textContent = user.name;
+            return user;
+        } catch (error) {
+            showToast('خطا', 'دریافت اطلاعات کاربر ناموفق بود.', true);
+            return null;
+        }
+    }
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+
+    // ========== UI Utilities ==========
+    const escapeHtml = (unsafe) => unsafe ? unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : '';
+    const toGregorian = (unix) => unix ? new Date(unix).toISOString().split('T')[0] : '';
+    const formatJalaliDate = (dateStr) => dateStr ? new persianDate(new Date(dateStr)).format('YYYY/MM/DD - HH:mm') : 'تاریخ نامعتبر';
+    const debounce = (fn, ms = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; };
+
+    // ========== Theme Management ==========
+    function setupTheme() {
+        const applyTheme = (isDark) => {
+            document.documentElement.classList.toggle('dark', isDark);
+            DOM.themeToggleLightIcon.classList.toggle('hidden', !isDark);
+            DOM.themeToggleDarkIcon.classList.toggle('hidden', isDark);
+            if (charts.byStatus) { initCharts(); applyFiltersAndRender(); }
+        };
+        const isDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        applyTheme(isDark);
+        DOM.themeToggle.addEventListener('click', () => {
+            const newIsDark = !document.documentElement.classList.contains('dark');
+            localStorage.theme = newIsDark ? 'dark' : 'light';
+            applyTheme(newIsDark);
+        });
+    }
+
+    // ========== Notifications ==========
+    function showToast(title, message, isError = false) {
+        const toastId = 'toast-' + Date.now();
+        const icon = isError ? `<i class="fas fa-exclamation-circle text-red-400 text-xl"></i>` : `<i class="fas fa-check-circle text-green-400 text-xl"></i>`;
+        const toastEl = document.createElement('div');
+        toastEl.id = toastId;
+        toastEl.className = `flex items-start max-w-md p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border dark:border-gray-700 space-x-4 space-x-reverse transition-all duration-300 transform translate-x-full`;
+        toastEl.innerHTML = `<div class="flex-shrink-0">${icon}</div><div class="flex-1"><p class="font-bold text-gray-800 dark:text-white text-sm">${title}</p><p class="text-gray-600 dark:text-gray-400 text-sm mt-1">${message}</p></div><button onclick="document.getElementById('${toastId}').remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><i class="fas fa-times"></i></button>`;
+        document.getElementById('toastContainer').appendChild(toastEl);
+        setTimeout(() => toastEl.classList.remove('translate-x-full'), 100);
+        setTimeout(() => { toastEl.style.opacity = '0'; toastEl.style.transform = 'translateX(100%)'; setTimeout(() => toastEl.remove(), 5000); }, 5000);
+    }
+
+    // ========== Sidebar Management ==========
+    function setupSidebar(userRole) {
+        const navContainer = DOM.sidebarNav;
+        if (!navContainer) return;
+
+        const links = [
+            { href: "/assembler-dashboard", icon: "fa-users-cog", text: "آمار و گزارش کار", role: ["employee", "supervisor"] },
+            { href: "/employee-dashboard", icon: "fa-user", text: "گزارش‌های من", role: ["employee", "supervisor"] },
+            { separator: true, role: ["supervisor"] },
+            { title: "پنل مدیریت", role: ["supervisor"] },
+            { href: "/dashboard", icon: "fa-tachometer-alt", text: "داشبورد اصلی", role: ["supervisor"] },
+            { href: "/manager", icon: "fa-user-shield", text: "پنل مدیر", role: ["supervisor"] },
+            { href: "/workshop", icon: "fa-hard-hat", text: "پنل کارگاه", role: ["supervisor"] },
+            { href: "/reports", icon: "fa-chart-line", text: "گزارش‌های KPI", role: ["supervisor"] },
+            { href: "/warehouse-dashboard", icon: "fa-warehouse", text: "داشبورد انبار", role: ["supervisor"] },
+            { separator: true, border: true, role: ["supervisor"] },
+            { href: "/personnel-management", icon: "fa-users", text: "مدیریت پرسنل", role: ["supervisor"] },
+            { href: "/supervisor-dashboard", icon: "fa-user-check", text: "داشبورد ناظر", role: ["supervisor"] },
+        ];
+        
+        const currentPage = window.location.pathname;
+        navContainer.innerHTML = links
+            .filter(link => link.role.includes(userRole))
+            .map(link => {
+                if (link.separator) return `<hr class="${link.border ? 'pt-4 mt-4 border-t' : 'my-3'} border-gray-200 dark:border-gray-700">`;
+                if (link.title) return `<h6 class="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">${link.text}</h6>`;
+                
+                const isActive = currentPage === link.href;
+                const activeClasses = 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50 font-semibold';
+                const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700';
+                
+                return `<a href="${link.href}" class="nav-link-item flex items-center px-4 py-2.5 rounded-lg ${isActive ? activeClasses : inactiveClasses}">
+                            <i class="fas ${link.icon} fa-fw ml-3"></i><span>${link.text}</span>
+                        </a>`;
+            }).join('');
+    }
+
+    // ========== Charts ==========
+    function initCharts() {
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const textColor = isDarkMode ? '#c9d1d9' : '#6b7280';
+        const gridColor = isDarkMode ? '#374151' : '#e5e7eb';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font.family = 'Vazirmatn';
+
+        if (charts.byStatus) charts.byStatus.destroy();
+        charts.byStatus = new Chart(document.getElementById('projectsByStatusChart').getContext('2d'), { type: 'doughnut', data: { labels: ['در حال اجرا', 'شروع نشده', 'تکمیل شده'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#f59e0b', '#ef4444', '#22c55e'], borderColor: isDarkMode ? '#161b22' : '#fff', borderWidth: 4 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } } });
+        
+        if (charts.byPanelType) charts.byPanelType.destroy();
+        charts.byPanelType = new Chart(document.getElementById('projectsByPanelTypeChart').getContext('2d'), { type: 'bar', data: { labels: [], datasets: [{ label: 'تعداد تابلوها', data: [], backgroundColor: ['#3b82f6', '#10b981', '#f97316', '#ec4899', '#8b5cf6'], borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: gridColor } }, y: { grid: { display: false } } }, plugins: { legend: { display: false } } } });
+    }
+
+    // ========== Data Fetching & Rendering Logic ==========
+    function getProjectStatus(project) {
+        if (!project || !project.steps) {
+            return { text: "شروع نشده", color: "red", icon: "fa-pause-circle", category: "notStarted" };
+        }
+        
+        const completedStepKeys = new Set(project.steps.map(step => step.name_key));
+
+        if (completedStepKeys.has("EXIT_PANEL")) {
+            return { text: "تکمیل شده", color: "green", icon: "fa-check-circle", category: "completed" };
+        }
+        
+        if (completedStepKeys.size > 0) {
+            let lastCompletedIndex = -1;
+            ORDERED_STEP_KEYS.forEach((key, index) => {
+                if (completedStepKeys.has(key)) lastCompletedIndex = index;
+            });
+            const nextStepKey = lastCompletedIndex < ORDERED_STEP_KEYS.length - 1 ? ORDERED_STEP_KEYS[lastCompletedIndex + 1] : null;
+            const text = nextStepKey ? `در انتظار: ${ALL_STEP_DEFINITIONS[nextStepKey]}` : `آماده خروج`;
+            return { text, color: "yellow", icon: "fa-tasks", category: "inProgress", nextStepKey };
+        }
+        
+        return { text: "شروع نشده", color: "red", icon: "fa-pause-circle", category: "notStarted" };
+    }
+
+    function renderProjectCard(project) {
+        if (!project) return '';
+        const status = getProjectStatus(project);
+        const progress = Math.min(100, Math.round(((project.steps || []).length / TOTAL_STEPS_COUNT) * 100));
+        const isStale = (project.steps || []).length === 0 && (new Date() - new Date(project.created_at) > THREE_DAYS_IN_MS);
+        
+        return `
+            <div id="project-card-${project.id}" class="card flex flex-col relative h-full">
+                ${isStale ? `<div class="absolute top-3 left-3 text-red-500" title="بیش از 3 روز از تعریف پروژه گذشته و شروع نشده"><i class="fas fa-exclamation-triangle fa-lg"></i></div>` : ''}
+                <div class="p-5 flex-grow">
+                    <div class="flex justify-between items-start mb-3 gap-2">
+                        <h4 class="font-bold text-gray-800 dark:text-white text-lg flex-grow leading-tight">${escapeHtml(project.name)}</h4>
+                        ${project.panel_code ? `<div class="text-xs font-semibold text-blue-800 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-400 px-2.5 py-1 rounded-full whitespace-nowrap">${project.panel_code}</div>` : ''}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 space-y-2">
+                        <p class="flex items-center"><i class="fas fa-user fa-fw ml-2 w-4"></i>${escapeHtml(project.customer_name)}</p>
+                        <p class="flex items-center"><i class="fas fa-hashtag fa-fw ml-2 w-4"></i>${escapeHtml(project.request_id)}</p>
+                        <p class="flex items-center"><i class="fas fa-calendar-alt fa-fw ml-2 w-4"></i>${formatJalaliDate(project.created_at)}</p>
+                    </div>
+                </div>
+                <div class="px-5 mb-4">
+                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1"><span>پیشرفت</span><span>${progress}%</span></div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${progress}%"></div></div>
+                </div>
+                <div class="mt-auto p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl">
+                    <div class="flex justify-between items-center">
+                        <div class="text-xs font-semibold text-${status.color}-800 bg-${status.color}-100 dark:bg-${status.color}-900/50 dark:text-${status.color}-400 px-3 py-1.5 rounded-full flex items-center"><i class="fas ${status.icon} ml-2"></i><span>${status.text}</span></div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openProjectModal(${project.id})" class="h-8 w-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-blue-600 rounded-full" title="نمایش جزئیات"><i class="fas fa-eye"></i></button>
+                            <a href="/projects/${project.id}/download-excel" onclick="event.stopPropagation()" class="h-8 w-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-green-200 dark:hover:bg-green-600 rounded-full" title="دانلود اکسل"><i class="fa fa-file-excel"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function renderAll(projects, highlightedId = null) {
+        const categorized = { inProgress: [], notStarted: [], completed: [] };
+        projects.forEach(p => {
+            const status = getProjectStatus(p);
+            if (categorized[status.category]) {
+                categorized[status.category].push(p);
+            }
+        });
+
+        const noDataMessage = (msg) => `<div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-inbox fa-3x mb-4 opacity-50"></i><p>${msg}</p></div>`;
+        DOM.panels.inProgress.innerHTML = categorized.inProgress.length ? categorized.inProgress.map(renderProjectCard).join('') : noDataMessage('پروژه‌ای در حال اجرا یافت نشد.');
+        DOM.panels.notStarted.innerHTML = categorized.notStarted.length ? categorized.notStarted.map(renderProjectCard).join('') : noDataMessage('پروژه‌ی شروع نشده‌ای یافت نشد.');
+        DOM.panels.completed.innerHTML = categorized.completed.length ? categorized.completed.map(renderProjectCard).join('') : noDataMessage('پروژه‌ی تکمیل شده‌ای یافت نشد.');
+
+        const panelTypeCounts = projects.reduce((acc, p) => { acc[p.panel_code || 'نامشخص'] = (acc[p.panel_code || 'نامشخص'] || 0) + 1; return acc; }, {});
+        const sortedPanelTypes = Object.entries(panelTypeCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        charts.byPanelType.data.labels = sortedPanelTypes.map(p => p[0]);
+        charts.byPanelType.data.datasets[0].data = sortedPanelTypes.map(p => p[1]);
+        charts.byPanelType.update();
+
+        charts.byStatus.data.datasets[0].data = [categorized.inProgress.length, categorized.notStarted.length, categorized.completed.length];
+        charts.byStatus.update();
+        
+        DOM.noResultsMessage.style.display = projects.length === 0 ? 'block' : 'none';
+
+        if (highlightedId) {
+            const card = document.getElementById(`project-card-${highlightedId}`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('card-highlight-ws');
+                setTimeout(() => card.classList.remove('card-highlight-ws'), 2000);
+            }
+        }
+    }
+
+    function applyFiltersAndRender(highlightedId = null) {
+        const searchTerm = DOM.mainSearchInput.value.toLowerCase().trim();
+        const selectedStage = DOM.stageFilter.value;
+        const startDate = DOM.startDateInput.value ? new Date(DOM.startDateInput.value) : null;
+        const endDate = DOM.endDateInput.value ? new Date(DOM.endDateInput.value) : null;
+        if (endDate) endDate.setHours(23, 59, 59, 999);
+
+        const filtered = (allProjectsCache || []).filter(p => {
+            const status = getProjectStatus(p);
+            const createdDate = new Date(p.created_at);
+            
+            const dateMatch = (!startDate || createdDate >= startDate) && (!endDate || createdDate <= endDate);
+            const searchMatch = !searchTerm || ['name', 'request_id', 'customer_name', 'panel_code'].some(field => (p[field] || '').toLowerCase().includes(searchTerm));
+            const stageMatch = selectedStage === 'all' || (selectedStage === 'not-started' && status.category === 'notStarted') || (selectedStage === 'completed' && status.category === 'completed') || status.nextStepKey === selectedStage;
+
+            return dateMatch && searchMatch && stageMatch;
+        });
+
+        renderAll(filtered, highlightedId);
+    }
+    
+    async function fetchDashboardData(highlightedId = null) {
+        DOM.loadingMessage.style.display = 'flex';
+        Object.values(DOM.panels).forEach(p => p.innerHTML = '');
+        try {
+            const [kpiData, projects] = await Promise.all([
+                api.get('/reports/kpi-summary'),
+                api.get('/projects/')
+            ]);
+            
+            DOM.statTotalProjects.textContent = (kpiData.total_projects || 0).toLocaleString('fa-IR');
+            DOM.statCompletedMonth.textContent = (kpiData.completed_this_month || 0).toLocaleString('fa-IR');
+            DOM.statAvgTime.textContent = kpiData.avg_completion_time_days ? `${kpiData.avg_completion_time_days.toFixed(1)} روز` : '-';
+            DOM.statBottleneck.textContent = kpiData.bottleneck_step || '-';
+            [DOM.statTotalProjects, DOM.statCompletedMonth, DOM.statAvgTime, DOM.statBottleneck].forEach(el => el.classList.remove('loading-skeleton'));
+            
+            allProjectsCache = projects || [];
+            populateStageFilter();
+            applyFiltersAndRender(highlightedId);
+        } catch (error) {
+            showToast('خطا', `بارگذاری داده‌ها ناموفق بود: ${error.message}`, true);
+        } finally {
+            DOM.loadingMessage.style.display = 'none';
+        }
+    }
+    
+    window.openProjectModal = async (projectId) => {
+        const project = allProjectsCache.find(p => p.id === projectId);
+        if (!project) return showToast('خطا', 'پروژه یافت نشد.', true);
+        
+        DOM.modalTitle.textContent = `جزئیات: ${project.name}`;
+        DOM.commentProjectId.value = projectId;
+
+        const stepsHtml = (project.steps || []).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)).map(s => `<li class="flex items-center gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"><div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div><div><p class="font-semibold">${escapeHtml(s.name)}</p><p class="text-xs text-gray-500">${formatJalaliDate(s.timestamp)}</p></div></li>`).join('') || '<li>هیچ مرحله‌ای ثبت نشده است.</li>';
+        const equipmentHtml = (project.equipment || []).map(e => `<li class="flex justify-between py-2 px-3"><span class="text-gray-700 dark:text-gray-300">${escapeHtml(e.item_name)}</span><span class="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm">${e.quantity} عدد</span></li>`).join('') || '<li>تجهیزی ثبت نشده است.</li>';
+        const commentsHtml = (project.comments || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(c => `<div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg"><p class="text-sm">${escapeHtml(c.text)}</p><div class="flex justify-between items-center mt-2 text-xs text-gray-500"><span>${escapeHtml(c.author)}</span><span>${formatJalaliDate(c.timestamp)}</span></div></div>`).join('') || '<p class="text-sm text-center text-gray-500">کامنتی وجود ندارد.</p>';
+
+        DOM.modalBody.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6"><div class="card p-4"><h4 class="font-bold mb-3 border-b pb-2">اطلاعات اصلی</h4><div class="space-y-3 text-sm"><div class="flex justify-between"><span>مشتری:</span><span class="font-medium">${escapeHtml(project.customer_name)}</span></div><div class="flex justify-between"><span>شماره تقاضا:</span><span class="font-medium">${escapeHtml(project.request_id)}</span></div><div class="flex justify-between"><span>کد تابلو:</span><span class="font-medium">${project.panel_code || '-'}</span></div></div></div><div class="card p-4"><h4 class="font-bold mb-3 border-b pb-2">مراحل</h4><ul class="space-y-2 max-h-80 overflow-y-auto">${stepsHtml}</ul></div></div>
+                <div class="lg:col-span-2 space-y-6"><div class="card p-4"><h4 class="font-bold mb-3 border-b pb-2">تجهیزات</h4><ul class="divide-y max-h-80 overflow-y-auto">${equipmentHtml}</ul></div><div class="card p-4"><h4 class="font-bold mb-3 border-b pb-2">کامنت‌ها</h4><div class="space-y-3 max-h-60 overflow-y-auto">${commentsHtml}</div></div></div>
+            </div>`;
+        
+        DOM.projectModal.classList.remove('hidden');
+        setTimeout(() => { DOM.modalBackdrop.classList.remove('opacity-0'); DOM.modalContent.classList.remove('opacity-0', 'scale-95'); }, 10);
+    };
+
+    function closeModal() {
+        DOM.modalBackdrop.classList.add('opacity-0');
+        DOM.modalContent.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => DOM.projectModal.classList.add('hidden'), 300);
+    }
+    
+    async function handleCommentSubmit(e) {
+        e.preventDefault();
+        const projectId = DOM.commentProjectId.value;
+        const text = DOM.commentText.value.trim();
+        if (!text) return showToast('خطا', 'لطفا متن کامنت را وارد کنید.', true);
+        try {
+            await api.post(`/projects/${projectId}/comments`, { text });
+            showToast('موفق', 'کامنت شما ثبت شد.');
+            DOM.commentText.value = '';
+            const updatedProject = await api.get(`/projects/${projectId}`);
+            const index = allProjectsCache.findIndex(p => p.id == projectId);
+            if (index !== -1) allProjectsCache[index] = updatedProject;
+            openProjectModal(parseInt(projectId));
+        } catch (error) { showToast('خطا', `ثبت کامنت ناموفق بود: ${error.message}`, true); }
+    }
+
+    function populateStageFilter() {
+        DOM.stageFilter.innerHTML = `<option value="all">همه مراحل</option><option value="not-started">شروع نشده</option>`;
+        ORDERED_STEP_KEYS.forEach(key => { DOM.stageFilter.innerHTML += `<option value="${key}">در انتظار: ${ALL_STEP_DEFINITIONS[key]}</option>`; });
+        DOM.stageFilter.innerHTML += `<option value="completed">تکمیل شده</option>`;
+    }
+
+    function setupEventListeners() {
+        DOM.userMenuButton.addEventListener('click', () => DOM.userMenu.classList.toggle('hidden'));
+        DOM.logoutButton.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+        DOM.projectTabs.addEventListener('click', (e) => {
+            const tabButton = e.target.closest('.tab-btn');
+            if (!tabButton) return;
+            DOM.projectTabs.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            tabButton.classList.add('active');
+            Object.values(DOM.panels).forEach(panel => panel.classList.add('hidden'));
+            document.getElementById(`panel-${tabButton.dataset.tab}`).classList.remove('hidden');
+        });
+
+        const applyFilters = () => applyFiltersAndRender();
+        DOM.filterBtn.addEventListener('click', applyFilters);
+        DOM.clearFilterBtn.addEventListener('click', () => {
+            DOM.mainSearchInput.value = '';
+            DOM.stageFilter.value = 'all';
+            DOM.startDateInput.value = '';
+            DOM.endDateInput.value = '';
+            DOM.startDateDisplay.value = '';
+            DOM.endDateDisplay.value = '';
+            applyFilters();
+        });
+        DOM.mainSearchInput.addEventListener('input', debounce(applyFilters, 300));
+        DOM.stageFilter.addEventListener('change', applyFilters);
+        DOM.closeModalBtn.addEventListener('click', closeModal);
+        DOM.modalBackdrop.addEventListener('click', closeModal);
+        DOM.commentForm.addEventListener('submit', handleCommentSubmit);
+        document.addEventListener('click', (e) => { if (!DOM.userMenuButton.contains(e.target) && !DOM.userMenu.contains(e.target)) { DOM.userMenu.classList.add('hidden'); } });
+    }
+    
+    function connectWebSocket() {
+        const token = localStorage.getItem('token');
+        const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws${token ? `?token=${token}` : ''}`;
+        const ws = new WebSocket(wsUrl);
+        ws.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                if (message.type === 'update') {
+                    showToast("به‌روزرسانی", "لیست پروژه‌ها به‌روزرسانی شد.");
+                    fetchDashboardData(message.project_id || null);
+                }
+            } catch (error) { console.error('Error parsing WebSocket message:', error); }
+        };
+        ws.onclose = () => setTimeout(connectWebSocket, 5000);
+    }
+
+    function initializeDatepickers() {
+        $("#startDateDisplay, #endDateDisplay").persianDatepicker({
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            initialValue: false,
+            onSelect: function(unixDate) {
+                const targetId = this.inputElement.id === 'startDateDisplay' ? 'startDateInput' : 'endDateInput';
+                document.getElementById(targetId).value = toGregorian(unixDate);
+                applyFiltersAndRender();
+            }
+        });
+    }
+
+    // ========== App Initialization ==========
+    async function initialize() {
+        if (!checkAuth()) return;
+        currentUser = await fetchCurrentUser();
+        if (!currentUser) return;
+        if (currentUser.role !== 'supervisor') {
+            showToast('خطای دسترسی', 'شما مجوز مشاهده این صفحه را ندارید.', true);
+            return setTimeout(() => window.location.href = '/assembler-dashboard', 3000);
+        }
+        setupTheme();
+        setupSidebar(currentUser.role);
+        initCharts();
+        setupEventListeners();
+        initializeDatepickers();
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectIdFromUrl = urlParams.get('projectId');
+        await fetchDashboardData(projectIdFromUrl ? parseInt(projectIdFromUrl) : null);
+        connectWebSocket();
+        if (projectIdFromUrl) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }
+
+    initialize();
+});
+</script>
+</body>
+</html>
